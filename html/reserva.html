@@ -1,0 +1,195 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Reserva tu mesa — Bella Época</title>
+    <meta name="description" content="Elige tu mesa y reserva tu noche en Bella Época." />
+    <meta property="og:title" content="Reserva tu mesa — Bella Época" />
+    <meta property="og:description" content="Elige tu mesa y reserva tu noche." />
+    <meta property="og:type" content="website" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&amp;family=Instrument+Serif&amp;display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="../css/styles.css" />
+    <script src="../js/reserva.js" defer></script>
+  </head>
+  <body>
+    <a class="skip-link" href="#contenido">Saltar al contenido</a>
+    <header class="site-header">
+      <div class="container site-header__inner">
+        <a class="brand" href="../index.html" aria-label="Bella Época, inicio"
+          ><span class="brand__monogram">BÉ</span
+          ><span class="brand__name">Bella Época</span></a
+        >
+        <nav class="site-nav" aria-label="Principal">
+          <a href="../index.html">Volver al inicio</a>
+        </nav>
+      </div>
+    </header>
+
+    <main id="contenido">
+      <section class="section" aria-labelledby="reserva-title">
+        <div class="container">
+          <div class="section__header">
+            <div class="section__intro">
+              <p class="eyebrow">Reservados</p>
+              <h1 id="reserva-title">Reserva tu mesa</h1>
+              <p class="body-copy">Elige una mesa disponible y completa tu reserva en dos pasos.</p>
+            </div>
+          </div>
+
+          <form class="form wizard" id="booking-form" novalidate>
+            <ol class="wizard-steps" aria-label="Pasos de la reserva">
+              <li data-step-label="1" aria-current="step">1 · Mesa</li>
+              <li data-step-label="2">2 · Tus datos</li>
+            </ol>
+
+            <!-- PASO 1: elegir mesa -->
+            <fieldset class="wizard-panel" data-step="1">
+              <legend class="form-label">Mesas disponibles</legend>
+              <div class="table-wrap">
+                <table class="data-table">
+                  <thead>
+                    <tr>
+                      <th scope="col"><span class="visually-hidden">Elegir</span></th>
+                      <th scope="col">Mesa</th>
+                      <th scope="col">Zona</th>
+                      <th scope="col">Personas</th>
+                      <th scope="col">Consumo mín.</th>
+                      <th scope="col">Estado</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td><input type="radio" name="mesa" value="Mesa 01" id="m1" data-zona="Pista" /></td>
+                      <td><label for="m1">Mesa 01</label></td>
+                      <td>Pista</td><td>4</td>
+                      <td class="data-table__price">Por confirmar</td>
+                      <td><span class="status status--available">Disponible</span></td>
+                    </tr>
+                    <tr>
+                      <td><input type="radio" name="mesa" value="Mesa 02" id="m2" data-zona="Pista" /></td>
+                      <td><label for="m2">Mesa 02</label></td>
+                      <td>Pista</td><td>6</td>
+                      <td class="data-table__price">Por confirmar</td>
+                      <td><span class="status status--limited">Últimas plazas</span></td>
+                    </tr>
+                    <tr>
+                      <td><input type="radio" name="mesa" value="Reservado VIP 01" id="m3" disabled /></td>
+                      <td><label for="m3">Reservado VIP 01</label></td>
+                      <td>VIP</td><td>8</td>
+                      <td class="data-table__price">Por confirmar</td>
+                      <td><span class="status status--reserved">Reservada</span></td>
+                    </tr>
+                    <tr>
+                      <td><input type="radio" name="mesa" value="Reservado VIP 02" id="m4" data-zona="VIP" /></td>
+                      <td><label for="m4">Reservado VIP 02</label></td>
+                      <td>VIP</td><td>10</td>
+                      <td class="data-table__price">Por confirmar</td>
+                      <td><span class="status status--available">Disponible</span></td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+              <p class="form-error" id="mesa-error" role="alert" hidden>Selecciona una mesa para continuar.</p>
+              <div class="wizard-actions">
+                <a class="btn btn--ghost" href="../index.html">Cancelar</a>
+                <button class="btn btn--primary" type="button" id="btn-next" disabled>Siguiente</button>
+              </div>
+            </fieldset>
+
+            <!-- PASO 2: nombre -->
+            <fieldset class="wizard-panel" data-step="2" hidden>
+              <legend class="form-label">Tus datos</legend>
+              <p class="booking-summary">Mesa elegida: <strong id="summary-mesa">—</strong></p>
+              <div class="form-field">
+                <label class="form-label" for="nombre">Nombre de la reserva *</label>
+                <input class="form-input" id="nombre" name="nombre" type="text" autocomplete="name"
+                  required minlength="2" maxlength="60" placeholder="Tu nombre"
+                  aria-describedby="nombre-error" />
+                <p class="form-error" id="nombre-error" hidden>Introduce un nombre para realizar la reserva.</p>
+              </div>
+              <div class="wizard-actions">
+                <button class="btn btn--outline" type="button" id="btn-back">Atrás</button>
+                <button class="btn btn--primary" type="submit" id="btn-submit" disabled>Realizar reserva</button>
+              </div>
+            </fieldset>
+
+            <!-- Confirmación (solo visual: no se envían datos) -->
+            <div class="wizard-panel" data-step="3" hidden role="status" tabindex="-1">
+              <p class="eyebrow">Solicitud registrada</p>
+              <h2 id="confirm-title">¡Gracias!</h2>
+              <p class="body-copy" id="confirm-text"></p>
+              <div class="wizard-actions">
+                <a class="btn btn--primary" href="./index.html">Volver al inicio</a>
+              </div>
+            </div>
+          </form>
+        </div>
+      </section>
+    </main>
+
+    <footer class="site-footer">
+      <div class="container">
+        <div class="site-footer__grid">
+          <div class="site-footer__brand">
+            <a class="brand" href="#inicio"
+              ><span class="brand__monogram">BÉ</span
+              ><span class="brand__name">Bella Época</span></a
+            >
+            <p>La noche, en su época más bella.</p>
+          </div>
+          <nav class="site-footer__links" aria-label="Pie de página">
+            <p class="eyebrow">Explora</p>
+            <a href="#eventos">Eventos</a><a href="#espacio">El espacio</a
+            ><a href="#vip">Reservados</a><a href="#contacto">Contacto</a>
+          </nav>
+          <div class="site-footer__newsletter">
+            <label class="form-label" for="newsletter-email"
+              >Noticias de Bella Época</label
+            >
+            <div class="newsletter-form">
+              <input
+                class="form-input"
+                id="newsletter-email"
+                type="email"
+                placeholder="Tu correo electrónico"
+                disabled
+                aria-describedby="newsletter-status"
+              /><button
+                class="btn btn--primary btn--icon"
+                type="button"
+                disabled
+                aria-label="Suscribirse"
+              >
+                <svg
+                  width="20"
+                  height="20"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="1.5"
+                  aria-hidden="true"
+                >
+                  <path d="M5 12h14m-5-5 5 5-5 5" />
+                </svg>
+              </button>
+            </div>
+            <p class="form-hint" id="newsletter-status">
+              Suscripciones todavía no disponibles.
+            </p>
+          </div>
+        </div>
+        <div class="site-footer__bottom">
+          <span>© 2026 Bella Época</span
+          ><span>Información legal pendiente de aportar.</span>
+        </div>
+      </div>
+    </footer>
+  </body>
+</html>

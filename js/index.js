@@ -129,16 +129,24 @@
 
   // No se simulan reservas, pagos ni altas de newsletter.
   const booking = document.getElementById("booking-dialog");
+  // Redirigir a la página de reservas en lugar de abrir el modal
   document.querySelectorAll("[data-booking]").forEach((link) => {
     link.addEventListener("click", (event) => {
-      if (
-        !(booking instanceof HTMLDialogElement) ||
-        typeof booking.showModal !== "function"
-      )
-        return;
-      event.preventDefault();
-      booking.showModal();
-      booking.addEventListener("close", () => link.focus(), { once: true });
+      event.preventDefault(); // Evita que salte el ancla (href="#contacto")
+      window.location.href = "html/reserva.html"; // Redirige a la página física
     });
   });
 })();
+  // document.querySelectorAll("[data-booking]").forEach((link) => {
+  //   link.addEventListener("click", (event) => {
+  //     if (
+  //       !(booking instanceof HTMLDialogElement) ||
+  //       typeof booking.showModal !== "function"
+  //     )
+  //       return;
+  //     event.preventDefault();
+  //     booking.showModal();
+  //     booking.addEventListener("close", () => link.focus(), { once: true });
+  //   });
+  // });
+//})();

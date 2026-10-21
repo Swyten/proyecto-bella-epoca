@@ -1140,7 +1140,7 @@ legend {
     --header-height: 68px;
     --space-9: 3.5rem;
   }
-  .site-header__inner {
+  /* .site-header__inner {
     flex-wrap: wrap;
   }
   .menu-toggle {
@@ -1173,6 +1173,82 @@ legend {
     align-items: start;
     flex-direction: column;
     gap: var(--space-4);
+  } */
+   /* Contenedor principal de la navegación móvil */
+  .site-nav {
+    flex-basis: 100%;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0;
+    
+    /* Configuración para la animación de persiana */
+    display: flex; /* Mantenemos display:flex siempre */
+    max-height: 0; /* Oculto por defecto */
+    opacity: 0;
+    overflow: hidden;
+    padding-bottom: 0;
+    transition: max-height 0.4s cubic-bezier(0.25, 0.8, 0.25, 1), opacity 0.3s ease-in;
+  }
+
+  /* Estado ACTIVO del menú móvil (cuando el JS cambia aria-expanded a true) */
+  .site-header:has(.menu-toggle[aria-expanded="true"]) {
+    background: var(--surface);
+  }
+  
+  .site-header:has(.menu-toggle[aria-expanded="true"]) .site-nav {
+    max-height: 400px; /* Un valor lo suficientemente alto para alojar todos tus enlaces */
+    opacity: 1;
+    padding-bottom: var(--space-4);
+  }
+
+  .site-nav a {
+    display: flex;
+    align-items: center;
+    min-height: 44px;
+    padding: var(--space-3);
+    /* Retraso ligero para que los textos aparezcan suavemente después de que el menú se despliegue */
+    opacity: 0;
+    transform: translateY(-10px);
+    transition: opacity 0.3s ease 0.2s, transform 0.3s ease 0.2s, color var(--transition);
+  }
+
+  .site-header:has(.menu-toggle[aria-expanded="true"]) .site-nav a {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  /* Animación del botón hamburguesa (Icono) */
+  .menu-toggle {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    width: 24px;
+    height: 18px;
+    background: transparent;
+    border: none;
+    padding: 0;
+    cursor: pointer;
+  }
+  
+  .menu-toggle__line {
+    width: 100%;
+    height: 2px;
+    background-color: var(--primary);
+    transition: transform 0.3s ease, opacity 0.3s ease;
+    transform-origin: left center;
+  }
+
+  /* Transformar hamburguesa en X al abrir */
+  .menu-toggle[aria-expanded="true"] .menu-toggle__line:first-child {
+    transform: rotate(45deg);
+  }
+  
+  .menu-toggle[aria-expanded="true"] .menu-toggle__line:nth-child(2) {
+    opacity: 0;
+  }
+  
+  .menu-toggle[aria-expanded="true"] .menu-toggle__line:last-child {
+    transform: rotate(-45deg);
   }
   .hero {
     min-height: min(700px, 88svh);
@@ -1358,4 +1434,91 @@ legend {
   .reviews-grid {
     break-inside: avoid;
   }
+}
+/* 19. RESERVA — Asistente por pasos (reserva.html). */
+.wizard {
+  display: grid;
+  gap: var(--space-6);
+  max-width: 880px;
+}
+.wizard-steps {
+  display: flex;
+  gap: var(--space-2);
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.wizard-steps li {
+  flex: 1;
+  padding: var(--space-3) var(--space-4);
+  border-top: 2px solid var(--border);
+  color: var(--muted);
+  font-size: var(--text-xs);
+  text-transform: uppercase;
+}
+.wizard-steps li[aria-current="step"] {
+  border-color: var(--primary);
+  color: var(--primary);
+}
+.wizard-steps li.is-done {
+  border-color: var(--primary);
+  color: var(--foreground);
+}
+.wizard-panel {
+  display: grid;
+  gap: var(--space-5);
+  padding: var(--space-6);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+}
+.wizard-panel[hidden] {
+  display: none;
+}
+.wizard-actions {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--space-3);
+  flex-wrap: wrap;
+}
+.data-table tbody tr.is-selectable {
+  cursor: pointer;
+}
+.data-table tbody tr.is-selected {
+  background: var(--outline-hover);
+  box-shadow: inset 3px 0 0 var(--primary);
+}
+.data-table tbody tr.is-disabled {
+  opacity: 0.5;
+}
+.data-table input[type="radio"] {
+  width: 18px;
+  height: 18px;
+  accent-color: var(--primary);
+}
+.booking-summary {
+  display: grid;
+  gap: var(--space-2);
+  margin: 0;
+  color: var(--muted);
+}
+.booking-summary strong {
+  color: var(--primary);
+  font-weight: 500;
+}
+@media (max-width: 640px) {
+  .wizard-panel {
+    padding: var(--space-4);
+  }
+  .wizard-actions .btn {
+    flex: 1;
+  }
+}
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
 }
