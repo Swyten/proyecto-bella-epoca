@@ -1522,3 +1522,113 @@ legend {
   clip-path: inset(50%);
   white-space: nowrap;
 }
+
+/* 16. PÁGINA DE EVENTOS */
+.agenda-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+  gap: var(--space-4);
+  margin-bottom: var(--space-6);
+}
+.agenda-list {
+  display: grid;
+  gap: var(--space-5);
+}
+.agenda-card {
+  display: grid;
+  grid-template-columns: minmax(0, 2fr) minmax(0, 3fr);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--surface);
+  overflow: hidden;
+}
+.agenda-card__media {
+  position: relative;
+  min-height: 240px;
+}
+.agenda-card__media img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.agenda-card__body {
+  display: grid;
+  gap: var(--space-4);
+  align-content: start;
+  padding: var(--space-6);
+}
+.agenda-card__meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2) var(--space-5);
+  margin: 0;
+  color: var(--muted);
+  font-size: var(--text-sm);
+}
+.agenda-card__meta dt {
+  color: var(--primary);
+  font-size: var(--text-xs);
+  text-transform: uppercase;
+}
+.agenda-card__meta dd {
+  margin: 0;
+}
+.agenda-card--past {
+  opacity: 0.6;
+}
+.agenda-card--past img {
+  filter: grayscale(1);
+}
+.ticket-options {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-3);
+}
+.ticket-option {
+  display: grid;
+  gap: var(--space-2);
+  padding: var(--space-4);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--surface-raised);
+}
+.ticket-option--vip {
+  border-color: var(--special);
+}
+.ticket-option__price {
+  font-family: var(--font-display);
+  font-size: var(--text-h3);
+  color: var(--primary);
+}
+.ticket-option__perks {
+  margin: 0;
+  color: var(--muted);
+  font-size: var(--text-sm);
+}
+.agenda-empty {
+  padding: var(--space-6);
+  border: 1px dashed var(--border);
+  border-radius: var(--radius);
+  color: var(--muted);
+  text-align: center;
+}
+.qty {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+.qty output {
+  min-width: 2ch;
+  text-align: center;
+  font-size: var(--text-h3);
+}
+@media (max-width: 760px) {
+  .agenda-card,
+  .ticket-options {
+    grid-template-columns: 1fr;
+  }
+}

@@ -1,0 +1,177 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Agenda de eventos — Bella Época</title>
+    <meta name="description" content="Eventos pasados, actuales y próximos de Bella Época. Compra tu entrada General o VIP." />
+    <meta property="og:title" content="Agenda de eventos — Bella Época" />
+    <meta property="og:description" content="Consulta la agenda y compra tu entrada General o VIP." />
+    <meta property="og:type" content="website" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&amp;family=Instrument+Serif&amp;display=swap"
+      rel="stylesheet"
+    />
+    <link rel="icon" type="image/png" href="../img/favicon.png" />
+    <link rel="stylesheet" href="../css/styles.css" />
+    <script src="../js/eventos.js" defer></script>
+  </head>
+  <body>
+    <a class="skip-link" href="#contenido">Saltar al contenido</a>
+    <header class="site-header">
+      <div class="container site-header__inner">
+        <a class="brand" href="../index.html" aria-label="Bella Época, inicio"
+          ><span class="brand__monogram">BÉ</span
+          ><span class="brand__name">Bella Época</span></a
+        >
+        <nav class="site-nav" aria-label="Principal">
+          <a href="../index.html">Inicio</a>
+          <a href="reserva.html">Reservar mesa</a>
+        </nav>
+      </div>
+    </header>
+
+    <main id="contenido">
+      <section class="section" aria-labelledby="agenda-title">
+        <div class="container">
+          <div class="section__header">
+            <div class="section__intro">
+              <p class="eyebrow">La agenda</p>
+              <h1 id="agenda-title">Eventos Bella Época</h1>
+              <p class="body-copy">Noches que fueron, noches que están sucediendo y las que están por llegar.</p>
+            </div>
+          </div>
+
+          <div class="agenda-toolbar">
+            <div class="tabs" role="tablist" aria-label="Filtrar eventos">
+              <button class="tab" type="button" role="tab" id="tab-actuales" aria-selected="true" aria-controls="agenda-panel" data-filter="actuales">Esta semana</button>
+              <button class="tab" type="button" role="tab" id="tab-proximos" aria-selected="false" aria-controls="agenda-panel" data-filter="proximos">Próximos</button>
+              <button class="tab" type="button" role="tab" id="tab-pasados" aria-selected="false" aria-controls="agenda-panel" data-filter="pasados">Pasados</button>
+            </div>
+            <p class="form-hint" id="agenda-count" aria-live="polite"></p>
+          </div>
+
+          <div class="agenda-list" id="agenda-panel" role="tabpanel" aria-labelledby="tab-actuales"></div>
+
+          <p class="form-hint events__footer">Programación de ejemplo pendiente de confirmar por Bella Época.</p>
+        </div>
+      </section>
+    </main>
+
+    <!-- Ventana de compra de entradas -->
+    <dialog class="dialog" id="ticket-dialog" aria-labelledby="ticket-title">
+      <form method="dialog" id="ticket-form" novalidate>
+        <div class="dialog__header">
+          <div>
+            <p class="eyebrow" id="ticket-type">Entrada</p>
+            <h2 id="ticket-title">Evento</h2>
+          </div>
+          <button class="btn btn--ghost btn--icon" type="button" data-close aria-label="Cerrar">✕</button>
+        </div>
+
+        <div data-ticket-step="1">
+          <dl class="booking-summary">
+            <div>Fecha: <strong id="ticket-date"></strong></div>
+            <div>Precio por entrada: <strong id="ticket-price"></strong></div>
+          </dl>
+          <div class="form-field">
+            <span class="form-label" id="qty-label">Número de entradas</span>
+            <div class="qty" role="group" aria-labelledby="qty-label">
+              <button class="btn btn--outline btn--icon" type="button" data-qty="-1" aria-label="Quitar una entrada">−</button>
+              <output id="ticket-qty">1</output>
+              <button class="btn btn--outline btn--icon" type="button" data-qty="1" aria-label="Añadir una entrada">+</button>
+            </div>
+          </div>
+          <div class="form-field">
+            <label class="form-label" for="ticket-name">Nombre completo</label>
+            <input class="form-input" id="ticket-name" type="text" autocomplete="name" required />
+          </div>
+          <div class="form-field">
+            <label class="form-label" for="ticket-email">Correo electrónico</label>
+            <input class="form-input" id="ticket-email" type="email" autocomplete="email" required />
+            <p class="form-error" id="ticket-error" hidden>Escribe tu nombre y un correo válido.</p>
+          </div>
+          <p class="body-copy">Total: <strong id="ticket-total"></strong></p>
+          <div class="wizard-actions">
+            <button class="btn btn--ghost" type="button" data-close>Cancelar</button>
+            <button class="btn btn--primary" type="submit" id="ticket-submit" disabled>Comprar entradas</button>
+          </div>
+        </div>
+
+        <div data-ticket-step="2" hidden>
+          <div class="alert alert--success" role="status">
+            <p id="ticket-confirm"></p>
+          </div>
+          <p class="form-hint">Pago todavía no conectado: esta compra no se ha cobrado.</p>
+          <div class="wizard-actions">
+            <button class="btn btn--primary" type="button" data-close>Cerrar</button>
+          </div>
+        </div>
+      </form>
+    </dialog>
+
+    <footer class="site-footer">
+      <div class="container">
+        <div class="site-footer__grid">
+          <div class="site-footer__brand">
+            <a class="brand" href="#inicio"
+              ><span class="brand__monogram">BÉ</span
+              ><span class="brand__name">Bella Época</span></a
+            >
+            <p>La noche, en su época más bella.</p>
+          </div>
+          <nav class="site-footer__links" aria-label="Pie de página">
+            <p class="eyebrow">Explora</p>
+            <a href="../index.html">Inicio</a>
+            <a href="./eventos">Eventos</a>
+            <a href="#espacio">El espacio</a>
+            <a href="./reserva.html">Reservados</a>
+            <a href="#contacto">Contacto</a>
+          </nav>
+          <div class="site-footer__newsletter">
+            <label class="form-label" for="newsletter-email"
+              >Noticias de Bella Época</label
+            >
+            <div class="newsletter-form">
+              <input
+                class="form-input"
+                id="newsletter-email"
+                type="email"
+                placeholder="Tu correo electrónico"
+                disabled
+                aria-describedby="newsletter-status"
+              /><button
+                class="btn btn--primary btn--icon"
+                type="button"
+                disabled
+                aria-label="Suscribirse"
+              >
+                <svg
+                  width="20"
+                  height="20"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="1.5"
+                  aria-hidden="true"
+                >
+                  <path d="M5 12h14m-5-5 5 5-5 5" />
+                </svg>
+              </button>
+            </div>
+            <p class="form-hint" id="newsletter-status">
+              Suscripciones todavía no disponibles.
+            </p>
+          </div>
+        </div>
+        <div class="site-footer__bottom">
+          <span>© 2026 Bella Época</span
+          ><span>Información legal pendiente de aportar.</span>
+        </div>
+      </div>
+    </footer>
+  </body>
+</html>
