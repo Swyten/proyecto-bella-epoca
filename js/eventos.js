@@ -1,4 +1,24 @@
 (() => {
+  "use strict";
+
+    // Control de dirección de la transición entre páginas
+  if (sessionStorage.getItem("animacion-volver") === "true") {
+    document.documentElement.classList.add("is-back-transition");
+    sessionStorage.removeItem("animacion-volver");
+  }
+
+  document.querySelectorAll("a").forEach((enlace) => {
+    enlace.addEventListener("click", () => {
+      // Si el enlace apunta al index, activa la animación de regreso
+      if (enlace.getAttribute("href")?.includes("index.html")) {
+        document.documentElement.classList.add("is-back-transition");
+        sessionStorage.setItem("animacion-volver", "true");
+      } else {
+        document.documentElement.classList.remove("is-back-transition");
+      }
+    });
+  });
+
   // Datos de ejemplo: sustituir por la programación real.
   // inicio / fin en formato "AAAA-MM-DDTHH:MM". Precios en euros.
   const EVENTOS = [

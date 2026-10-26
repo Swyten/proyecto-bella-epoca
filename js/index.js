@@ -1,6 +1,25 @@
 /* Bella Época — Interacciones independientes, sin librerías ni envíos de datos. */
 (() => {
   "use strict";
+
+    // Control de dirección de la transición entre páginas
+  if (sessionStorage.getItem("animacion-volver") === "true") {
+    document.documentElement.classList.add("is-back-transition");
+    sessionStorage.removeItem("animacion-volver");
+  }
+
+  document.querySelectorAll("a").forEach((enlace) => {
+    enlace.addEventListener("click", () => {
+      // Si el enlace apunta al index, activa la animación de regreso
+      if (enlace.getAttribute("href")?.includes("index.html")) {
+        document.documentElement.classList.add("is-back-transition");
+        sessionStorage.setItem("animacion-volver", "true");
+      } else {
+        document.documentElement.classList.remove("is-back-transition");
+      }
+    });
+  });
+
   const menu = document.querySelector(".menu-toggle");
   const nav = document.getElementById("site-nav");
   function closeMenu() {
@@ -137,16 +156,3 @@
     });
   });
 })();
-  // document.querySelectorAll("[data-booking]").forEach((link) => {
-  //   link.addEventListener("click", (event) => {
-  //     if (
-  //       !(booking instanceof HTMLDialogElement) ||
-  //       typeof booking.showModal !== "function"
-  //     )
-  //       return;
-  //     event.preventDefault();
-  //     booking.showModal();
-  //     booking.addEventListener("close", () => link.focus(), { once: true });
-  //   });
-  // });
-//})();
