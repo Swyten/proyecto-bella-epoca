@@ -1646,52 +1646,27 @@
   }
 
   /* ==========================================================
-   TRANSICIONES FLUIDAS ENTRE PÁGINAS (View Transitions API)
-   ========================================================== */
-
-/* Habilita la transición automática al navegar entre páginas de tu web */
-  @view-transition {
-    navigation: auto;
-  }
-
-  /* Animación de la página de la que te vas (sale hacia la izquierda) */
-  ::view-transition-old(root) {
-    animation: slide-out-left 0.4s cubic-bezier(0.25, 0.8, 0.25, 1) both;
-  }
-
-  /* Animación de la página a la que llegas (entra desde la derecha) */
-  ::view-transition-new(root) {
-    animation: slide-in-right 0.4s cubic-bezier(0.25, 0.8, 0.25, 1) both;
+     TRANSICIONES INSTANTÁNEAS (Intercepción por JavaScript)
+     ========================================================== */
+  
+  /* Ocultar la barra de desplazamiento horizontal durante la animación */
+  body {
+    overflow-x: hidden; 
   }
 
   @keyframes slide-out-left {
-    to {
-      transform: translateX(-30%);
-      opacity: 0;
-    }
+    to { transform: translateX(-30%); opacity: 0; }
   }
 
   @keyframes slide-in-right {
-    from {
-      transform: translateX(100%);
-      opacity: 0;
-    }
-    to {
-      transform: translateX(0);
-      opacity: 1;
-    }
+    from { transform: translateX(100%); opacity: 0; }
+    to { transform: translateX(0); opacity: 1; }
   }
-  /* Transición inversa (Volver) */
-  html.is-back-transition ::view-transition-old(root) {
-    animation: slide-out-right 0.4s cubic-bezier(0.25, 0.8, 0.25, 1) both;
-  }
-  html.is-back-transition ::view-transition-new(root) {
-    animation: slide-in-left 0.4s cubic-bezier(0.25, 0.8, 0.25, 1) both;
-  }
-
+  
   @keyframes slide-out-right {
     to { transform: translateX(30%); opacity: 0; }
   }
+  
   @keyframes slide-in-left {
     from { transform: translateX(-100%); opacity: 0; }
     to { transform: translateX(0); opacity: 1; }

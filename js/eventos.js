@@ -1,23 +1,31 @@
 (() => {
   "use strict";
 
-    // Control de dirección de la transición entre páginas
-  if (sessionStorage.getItem("animacion-volver") === "true") {
-    document.documentElement.classList.add("is-back-transition");
-    sessionStorage.removeItem("animacion-volver");
-  }
+    // --- TRANSICIONES INSTANTÁNEAS DE ENTRADA ---
+  
+  // 1. Animación fluida al cargar la página (sin esperas previas)
+  document.addEventListener("DOMContentLoaded", () => {
+    if (sessionStorage.getItem("animacion-volver") === "true") {
+      document.body.style.animation = "slide-in-left 0.4s cubic-bezier(0.25, 0.8, 0.25, 1) forwards";
+      sessionStorage.removeItem("animacion-volver");
+    } else {
+      document.body.style.animation = "slide-in-right 0.4s cubic-bezier(0.25, 0.8, 0.25, 1) forwards";
+    }
+  });
 
+  // 2. Registrar hacia dónde vamos, pero sin bloquear el salto nativo
   document.querySelectorAll("a").forEach((enlace) => {
     enlace.addEventListener("click", () => {
-      // Si el enlace apunta al index, activa la animación de regreso
-      if (enlace.getAttribute("href")?.includes("index.html")) {
-        document.documentElement.classList.add("is-back-transition");
+      const href = enlace.getAttribute("href");
+      if (!href || href.startsWith("#")) return;
+      
+      // Guardamos el aviso para que la siguiente página sepa de dónde viene
+      if (href.includes("index.html")) {
         sessionStorage.setItem("animacion-volver", "true");
-      } else {
-        document.documentElement.classList.remove("is-back-transition");
       }
     });
   });
+  // -----------------------------------------------
 
   // Datos de ejemplo: sustituir por la programación real.
   // inicio / fin en formato "AAAA-MM-DDTHH:MM". Precios en euros.
