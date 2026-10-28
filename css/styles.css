@@ -1671,3 +1671,45 @@
     from { transform: translateX(-100%); opacity: 0; }
     to { transform: translateX(0); opacity: 1; }
   }
+  /* 20. GALERÍA — Página dedicada (html/galeria.html). */
+  .gallery-mosaic {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-auto-rows: 240px;
+  grid-auto-flow: dense;
+  gap: var(--space-3);
+  }
+  .gallery-mosaic .gallery-item {
+  position: relative;
+  }
+  .gallery-mosaic .gallery-item--tall {
+  grid-column: auto / span 1;
+  grid-row: auto / span 2;
+  }
+  .gallery-mosaic .gallery-item--wide {
+  grid-column: auto / span 2;
+  grid-row: auto / span 1;
+  }
+  .gallery-mosaic .gallery-item img {
+  transition: transform 0.4s ease;
+  }
+  .gallery-mosaic .gallery-item:hover img,
+  .gallery-mosaic .gallery-item:focus-visible img {
+  transform: scale(1.04);
+  }
+
+  /* 21. GALERÍA — Adaptación a tablet y móvil. */
+  @media (max-width: 1024px) {
+  .gallery-mosaic {
+  grid-auto-rows: 190px;
+  }
+  }
+  @media (max-width: 480px) {
+  .gallery-mosaic {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-auto-rows: 150px;
+  }
+  .gallery-mosaic .gallery-item--wide {
+  grid-column: auto / span 2;
+  }
+  }

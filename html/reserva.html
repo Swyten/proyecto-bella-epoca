@@ -16,7 +16,6 @@
       rel="stylesheet"
     />
     <link rel="icon" type="image/png" href="../img/favicon.png">
-    <meta name="view-transition" content="same-origin" />
     <link rel="stylesheet" href="../css/styles.css" />
     <script src="../js/reserva.js" defer></script>
   </head>
@@ -66,35 +65,7 @@
                       <th scope="col">Estado</th>
                     </tr>
                   </thead>
-                  <tbody>
-                    <tr>
-                      <td><input type="radio" name="mesa" value="Mesa 01" id="m1" data-zona="Pista" /></td>
-                      <td><label for="m1">Mesa 01</label></td>
-                      <td>Pista</td><td>4</td>
-                      <td class="data-table__price">Por confirmar</td>
-                      <td><span class="status status--available">Disponible</span></td>
-                    </tr>
-                    <tr>
-                      <td><input type="radio" name="mesa" value="Mesa 02" id="m2" data-zona="Pista" /></td>
-                      <td><label for="m2">Mesa 02</label></td>
-                      <td>Pista</td><td>6</td>
-                      <td class="data-table__price">Por confirmar</td>
-                      <td><span class="status status--limited">Últimas plazas</span></td>
-                    </tr>
-                    <tr>
-                      <td><input type="radio" name="mesa" value="Reservado VIP 01" id="m3" disabled /></td>
-                      <td><label for="m3">Reservado VIP 01</label></td>
-                      <td>VIP</td><td>8</td>
-                      <td class="data-table__price">Por confirmar</td>
-                      <td><span class="status status--reserved">Reservada</span></td>
-                    </tr>
-                    <tr>
-                      <td><input type="radio" name="mesa" value="Reservado VIP 02" id="m4" data-zona="VIP" /></td>
-                      <td><label for="m4">Reservado VIP 02</label></td>
-                      <td>VIP</td><td>10</td>
-                      <td class="data-table__price">Por confirmar</td>
-                      <td><span class="status status--available">Disponible</span></td>
-                    </tr>
+                  <tbody id="tabla-mesas">
                   </tbody>
                 </table>
               </div>

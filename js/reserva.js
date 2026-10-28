@@ -1,8 +1,8 @@
-/* Bella Época — Asistente de reserva (sin envío de datos a ningún servidor). */
+/* Bella Época — Asistente de reserva. */
 (() => {
   "use strict";
 
-    // --- TRANSICIONES INSTANTÁNEAS DE ENTRADA ---
+  // --- TRANSICIONES INSTANTÁNEAS DE ENTRADA ---
   
   // 1. Animación fluida al cargar la página (sin esperas previas)
   document.addEventListener("DOMContentLoaded", () => {
@@ -31,9 +31,9 @@
   const form = document.getElementById("booking-form");
   if (!form) return;
 
+  const tbody = document.getElementById("tabla-mesas");
   const panels = form.querySelectorAll("[data-step]");
   const labels = form.querySelectorAll("[data-step-label]");
-  const radios = form.querySelectorAll('input[name="mesa"]');
   const next = document.getElementById("btn-next");
   const back = document.getElementById("btn-back");
   const submit = document.getElementById("btn-submit");
@@ -57,21 +57,58 @@
     focusable?.focus();
   }
 
-  // Selección de mesa: toda la fila es clicable.
-  radios.forEach((radio) => {
-    const row = radio.closest("tr");
-    row.classList.add(radio.disabled ? "is-disabled" : "is-selectable");
-    row.addEventListener("click", () => {
-      if (radio.disabled) return;
-      radio.checked = true;
-      radio.dispatchEvent(new Event("change", { bubbles: true }));
+  // --- CARGA DINÁMICA DE BASE DE DATOS NEON ---
+  async function cargarMesas() {
+    if (!tbody) return;
+      tbody.innerHTML = '<tr><td colspan="6" style="text-align: center; padding: 2rem;">Buscando mesas disponibles...</td></tr>';
+    try {
+      const respuesta = await fetch('/api/reservasMesas');
+      const mesas = await respuesta.json();
+      tbody.innerHTML = ""; // Limpia cualquier estado previo
+
+      mesas.forEach((mesa) => {
+        const disabledAttr = mesa.disponible ? "" : "disabled";
+        
+        let claseEstado = "status--available";
+        if (!mesa.disponible) claseEstado = "status--reserved";
+        else if (mesa.estado.toLowerCase().includes("últimas")) claseEstado = "status--limited";
+
+        const tr = document.createElement("tr");
+        tr.className = mesa.disponible ? "is-selectable" : "is-disabled";
+        tr.innerHTML = `
+          <td><input type="radio" name="mesa" value="${mesa.nombre}" id="m${mesa.id}" data-zona="${mesa.zona}" ${disabledAttr} /></td>
+          <td><label for="m${mesa.id}">${mesa.nombre}</label></td>
+          <td>${mesa.zona}</td>
+          <td>${mesa.capacidad}</td>
+          <td class="data-table__price">${mesa.consumo_minimo}</td>
+          <td><span class="status ${claseEstado}">${mesa.estado}</span></td>
+        `;
+        tbody.appendChild(tr);
+      });
+
+      // Vinculamos los eventos de los radio buttons una vez se han creado
+      configurarEventosTabla();
+    } catch (error) {
+      tbody.innerHTML = '<tr><td colspan="6" class="form-error">Error de conexión al cargar las mesas.</td></tr>';
+    }
+  }
+
+  function configurarEventosTabla() {
+    const radios = form.querySelectorAll('input[name="mesa"]');
+    radios.forEach((radio) => {
+      const row = radio.closest("tr");
+      row.addEventListener("click", () => {
+        if (radio.disabled) return;
+        radio.checked = true;
+        radio.dispatchEvent(new Event("change", { bubbles: true }));
+      });
+      radio.addEventListener("change", () => {
+        radios.forEach((r) => r.closest("tr").classList.toggle("is-selected", r.checked));
+        next.disabled = !selected();
+        mesaError.hidden = true;
+      });
     });
-    radio.addEventListener("change", () => {
-      radios.forEach((r) => r.closest("tr").classList.toggle("is-selected", r.checked));
-      next.disabled = !selected();
-      mesaError.hidden = true;
-    });
-  });
+  }
 
   next.addEventListener("click", () => {
     const mesa = selected();
@@ -85,7 +122,6 @@
 
   back.addEventListener("click", () => goTo(1));
 
-  // Sin nombre no se puede reservar.
   nombre.addEventListener("input", () => {
     submit.disabled = !validName();
     if (validName()) {
@@ -104,8 +140,10 @@
       return;
     }
     document.getElementById("confirm-text").textContent =
-      `${nombre.value.trim()}, hemos registrado tu solicitud para ${selected().value}. ` +
-      "Esta es una demostración: la reserva aún no se envía a Bella Época.";
+      `${nombre.value.trim()}, hemos registrado tu solicitud para ${selected().value}.`;
     goTo(3);
   });
+
+  // Ejecutamos la petición inicial a la base de datos
+  cargarMesas();
 })();
