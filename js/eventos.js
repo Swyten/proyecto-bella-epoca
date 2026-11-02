@@ -1,9 +1,8 @@
+/* Bella Época — Agenda de eventos dinámica */
 (() => {
   "use strict";
 
-    // --- TRANSICIONES INSTANTÁNEAS DE ENTRADA ---
-  
-  // 1. Animación fluida al cargar la página (sin esperas previas)
+  // --- TRANSICIONES INSTANTÁNEAS DE ENTRADA ---
   document.addEventListener("DOMContentLoaded", () => {
     if (sessionStorage.getItem("animacion-volver") === "true") {
       document.body.style.animation = "slide-in-left 0.4s cubic-bezier(0.25, 0.8, 0.25, 1) forwards";
@@ -13,13 +12,11 @@
     }
   });
 
-  // 2. Registrar hacia dónde vamos, pero sin bloquear el salto nativo
   document.querySelectorAll("a").forEach((enlace) => {
     enlace.addEventListener("click", () => {
       const href = enlace.getAttribute("href");
       if (!href || href.startsWith("#")) return;
       
-      // Guardamos el aviso para que la siguiente página sepa de dónde viene
       if (href.includes("index.html")) {
         sessionStorage.setItem("animacion-volver", "true");
       }
@@ -27,15 +24,8 @@
   });
   // -----------------------------------------------
 
-  // Datos de ejemplo: sustituir por la programación real.
-  // inicio / fin en formato "AAAA-MM-DDTHH:MM". Precios en euros.
-  const EVENTOS = [
-    { titulo: "Noche Années Folles", inicio: "2026-09-26T23:00", fin: "2026-09-27T06:00", artista: "DJ residente", img: "../img/bella-epoca-sala.jpg", descripcion: "Un homenaje a los años veinte con swing electrónico.", general: 15, vip: 45 },
-    { titulo: "Velvet Room", inicio: "2026-10-10T23:00", fin: "2026-10-11T06:00", artista: "Por confirmar", img: "../img/bella-epoca-vip.jpg", descripcion: "Sesión íntima con cócteles de autor.", general: 18, vip: 50 },
-    { titulo: "Especial musical", inicio: "2026-10-24T23:00", fin: "2026-10-25T06:00", artista: "Por confirmar", img: "../img/bella-epoca-dj.jpg", descripcion: "Una noche de música en directo bajo la lámpara central.", general: 20, vip: 60 },
-    { titulo: "Fiebre de ritmo", inicio: "2026-11-07T23:00", fin: "2026-11-08T06:00", artista: "Por confirmar", img: "../img/bella-epoca-sala.jpg", descripcion: "Clásicos de pista para bailar hasta el cierre.", general: 15, vip: 45 },
-    { titulo: "Gala de fin de año", inicio: "2026-12-31T23:30", fin: "2027-01-01T07:00", artista: "Por confirmar", img: "../img/bella-epoca-vip.jpg", descripcion: "Recibe el año en su época más bella.", general: 40, vip: 120 },
-  ];
+  // Variable vacía que se llenará con los datos de Neon
+  let EVENTOS = [];
 
   const VENTAJAS = {
     general: "Acceso a la sala principal.",
@@ -66,6 +56,11 @@
       pasado
         ? `<button class="btn ${clase} btn--small" type="button" disabled>Finalizado</button>`
         : `<button class="btn ${clase} btn--small" type="button" data-buy="${i}" data-level="${nivel}">${texto}</button>`;
+    
+    // Aseguramos que los precios se lean como números (a veces las BD los devuelven como texto)
+    const precioGeneral = Number(ev.general);
+    const precioVip = Number(ev.vip);
+
     return `
       <article class="agenda-card${pasado ? " agenda-card--past" : ""}">
         <div class="agenda-card__media">
@@ -82,13 +77,13 @@
           <div class="ticket-options">
             <div class="ticket-option">
               <span class="eyebrow">General</span>
-              <span class="ticket-option__price">${euros.format(ev.general)}</span>
+              <span class="ticket-option__price">${euros.format(precioGeneral)}</span>
               <p class="ticket-option__perks">${VENTAJAS.general}</p>
               ${boton("btn--outline", "general", "Comprar General")}
             </div>
             <div class="ticket-option ticket-option--vip">
               <span class="eyebrow">VIP</span>
-              <span class="ticket-option__price">${euros.format(ev.vip)}</span>
+              <span class="ticket-option__price">${euros.format(precioVip)}</span>
               <p class="ticket-option__perks">${VENTAJAS.vip}</p>
               ${boton("btn--vip", "vip", "Comprar VIP")}
             </div>
@@ -125,6 +120,7 @@
   function paso(n) {
     form.querySelectorAll("[data-ticket-step]").forEach((p) => (p.hidden = p.dataset.ticketStep !== String(n)));
   }
+  
   function actualizar() {
     $("ticket-qty").textContent = cantidad;
     $("ticket-total").textContent = euros.format(cantidad * actual.precio);
@@ -137,7 +133,7 @@
     if (!btn || !(dialog instanceof HTMLDialogElement)) return;
     const ev = EVENTOS[Number(btn.dataset.buy)];
     const nivel = btn.dataset.level;
-    actual = { ev, nivel, precio: ev[nivel] };
+    actual = { ev, nivel, precio: Number(ev[nivel]) };
     cantidad = 1;
     opener = btn;
     form.reset();
@@ -175,7 +171,26 @@
   form.querySelectorAll("[data-close]").forEach((b) => b.addEventListener("click", () => dialog.close()));
   dialog?.addEventListener("close", () => opener?.focus());
 
-  // Abre la pestaña indicada en la URL (eventos.html#proximos) o "Esta semana".
-  const inicial = location.hash.slice(1);
-  pintar(["actuales", "proximos", "pasados"].includes(inicial) ? inicial : "actuales");
+  // --- CARGA DINÁMICA DESDE NEON ---
+  async function cargarEventos() {
+    // Feedback visual mientras despierta la base de datos
+    panel.innerHTML = '<p class="agenda-empty" style="text-align: center; padding: 3rem 0;">Cargando agenda de eventos...</p>';
+    
+    try {
+      const respuesta = await fetch('/api/eventos');
+      EVENTOS = await respuesta.json();
+
+      // Abre la pestaña indicada en la URL o "Esta semana" por defecto
+      const inicial = location.hash.slice(1);
+      pintar(["actuales", "proximos", "pasados"].includes(inicial) ? inicial : "actuales");
+      
+    } catch (error) {
+      console.error("Error al cargar los eventos:", error);
+      panel.innerHTML = '<p class="agenda-empty" style="color: #ff6b6b; text-align: center;">No se ha podido conectar con la agenda.</p>';
+      count.textContent = "0 eventos";
+    }
+  }
+
+  // Ejecutamos la petición inicial
+  cargarEventos();
 })();
