@@ -1,6 +1,71 @@
 /* Bella Época — Interacciones independientes, sin librerías ni envíos de datos. */
 (() => {
   "use strict";
+
+  // --- LOGIN Y REGISTRO ---
+  const loginModal = document.getElementById("login-modal");
+  const btnOpenLogin = document.getElementById("btn-open-login");
+  const loginForm = document.getElementById("login-form");
+  const btnRegister = document.getElementById("btn-register");
+  const loginError = document.getElementById("login-error");
+
+  // Abrir modal
+  btnOpenLogin?.addEventListener("click", () => {
+    loginForm.reset();
+    loginError.hidden = true;
+    loginModal?.showModal();
+  });
+
+  // Función para manejar Login/Registro
+  async function authRequest(endpoint) {
+    const email = document.getElementById("login-email").value;
+    const password = document.getElementById("login-pass").value;
+
+    try {
+      const response = await fetch(endpoint, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password })
+      });
+      
+      const data = await response.json();
+
+      if (!response.ok) {
+        loginError.textContent = data.error || "Error en la petición";
+        loginError.hidden = false;
+        return;
+      }
+
+      // Éxito
+      loginError.hidden = true;
+      if (endpoint === '/api/login') {
+        alert(`Bienvenido, rol: ${data.usuario.rol}`);
+        // Aquí puedes guardar el usuario en sessionStorage
+        sessionStorage.setItem('usuario', JSON.stringify(data.usuario));
+        loginModal.close();
+      } else {
+        alert("Registro exitoso. Ahora puedes iniciar sesión.");
+      }
+    } catch (error) {
+      loginError.textContent = "Error de conexión con el servidor.";
+      loginError.hidden = false;
+    }
+  }
+
+  // Evento Iniciar Sesión (Submit del form)
+  loginForm?.addEventListener("submit", (e) => {
+    e.preventDefault();
+    authRequest('/api/login');
+  });
+
+  // Evento Registrarse (Botón secundario)
+  btnRegister?.addEventListener("click", () => {
+    if (!loginForm.checkValidity()) {
+      loginForm.reportValidity();
+      return;
+    }
+    authRequest('/api/registro');
+  });
   
   // --- TRANSICIONES INSTANTÁNEAS DE ENTRADA ---
   
