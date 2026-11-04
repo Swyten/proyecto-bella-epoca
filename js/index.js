@@ -8,7 +8,7 @@
   window.onload = () => {
     if (window.google) {
       googleClient = google.accounts.oauth2.initTokenClient({
-        client_id: 'TU_CLIENT_ID_AQUI.apps.googleusercontent.com',
+        client_id: '740009760567-n251fo9rrh13o2l7bprvtpjpbq2r85em.apps.googleusercontent.com',
         scope: 'email profile',
         callback: async (tokenResponse) => {
           if (tokenResponse.access_token) {
