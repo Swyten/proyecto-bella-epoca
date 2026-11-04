@@ -2,6 +2,65 @@
 (() => {
   "use strict";
 
+  let googleClient;
+
+// 1. Inicializar el cliente de Google cuando cargue la ventana
+  window.onload = () => {
+    if (window.google) {
+      googleClient = google.accounts.oauth2.initTokenClient({
+        client_id: 'TU_CLIENT_ID_AQUI.apps.googleusercontent.com',
+        scope: 'email profile',
+        callback: async (tokenResponse) => {
+          if (tokenResponse.access_token) {
+            try {
+              // 2. Enviar el token recibido de Google a nuestro backend
+              const res = await fetch('/api/auth-google', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ token: tokenResponse.access_token })
+              });
+              
+              const data = await res.json();
+              
+              if (!res.ok) {
+                throw new Error(data.error || 'Error en la autenticación con Google');
+              }
+
+              // 3. Guardar sesión y cerrar el modal de login
+              sessionStorage.setItem("usuario", JSON.stringify(data.usuario));
+              
+              const modal = document.getElementById("login-modal");
+              if (modal && typeof modal.close === 'function') {
+                modal.close();
+              }
+              
+              alert(`¡Bienvenido, ${data.usuario.email}! Sesión iniciada correctamente.`);
+              
+              // Opcional: recargar o redirigir a la vista de usuario
+              window.location.reload();
+
+            } catch (err) {
+              alert(err.message);
+            }
+          }
+        },
+      });
+    }
+  };
+
+// 4. Activar la ventana emergente de Google al hacer clic en el botón personalizado
+document.addEventListener("DOMContentLoaded", () => {
+  const btnGoogle = document.getElementById("btn-google");
+  
+  btnGoogle?.addEventListener("click", () => {
+    if (googleClient) {
+      googleClient.requestAccessToken();
+    } else {
+      alert("El servicio de Google aún se está cargando. Espera un segundo e inténtalo de nuevo.");
+    }
+  });
+});
+
   // --- LOGIN Y REGISTRO ---
   const loginModal = document.getElementById("login-modal");
   const btnOpenLogin = document.getElementById("btn-open-login");
