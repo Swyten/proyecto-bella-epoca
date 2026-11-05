@@ -1,42 +1,30 @@
-/* Bella Época — Interacciones independientes, sin librerías ni envíos de datos. */
+/* Bella Época — Interacciones principales */
 (() => {
   "use strict";
 
+  // --- DETECCIÓN DE SESIÓN EN LA NAVEGACIÓN ---
   document.addEventListener("DOMContentLoaded", () => {
-  const btnOpenLogin = document.getElementById("btn-open-login");
-  const nav = document.getElementById("site-nav");
-  const sesionGuardada = sessionStorage.getItem("usuario");
+    const btnOpenLogin = document.getElementById("btn-open-login");
+    const sesionGuardada = sessionStorage.getItem("usuario");
 
-  if (sesionGuardada && btnOpenLogin) {
-    const usuario = JSON.parse(sesionGuardada);
-    
-    // Cambiar el botón de "Iniciar Sesión" por el correo/nombre del usuario
-    btnOpenLogin.textContent = usuario.email.split('@')[0]; // Muestra la parte inicial del correo
-    btnOpenLogin.id = "btn-user-profile"; // Cambiamos el ID para no disparar el modal
-    
-    // Función rápida para cerrar sesión al hacer clic en su nombre
-    btnOpenLogin.addEventListener("click", (e) => {
-      e.preventDefault();
-      if (confirm("¿Deseas cerrar sesión?")) {
-        sessionStorage.removeItem("usuario");
-        window.location.reload();
-      }
-    });
-
-      // Si es administrador o empleado, añadimos el enlace de "Gestión de Reservas"
-      if (usuario.rol === 'empleado' || usuario.rol === 'administrador') {
-        const enlaceGestion = document.createElement("a");
-        enlaceGestion.href = "html/gestion-mesas.html"; // Nueva página que crearás
-        enlaceGestion.textContent = "Gestión de Mesas";
-        enlaceGestion.style.color = "#d4af37"; // Destacarlo visualmente (dorado)
-        nav.insertBefore(enlaceGestion, btnOpenLogin);
-      }
+    if (sesionGuardada && btnOpenLogin) {
+      const usuario = JSON.parse(sesionGuardada);
+      btnOpenLogin.textContent = usuario.email.split('@')[0];
+      btnOpenLogin.id = "btn-user-profile";
+      
+      btnOpenLogin.addEventListener("click", (e) => {
+        e.preventDefault();
+        if (confirm("¿Deseas cerrar sesión?")) {
+          sessionStorage.removeItem("usuario");
+          window.location.reload();
+        }
+      });
     }
   });
 
   let googleClient;
 
-// 1. Inicializar el cliente de Google cuando cargue la ventana
+  // --- INICIALIZAR GOOGLE OAUTH ---
   window.onload = () => {
     if (window.google) {
       googleClient = google.accounts.oauth2.initTokenClient({
@@ -45,7 +33,6 @@
         callback: async (tokenResponse) => {
           if (tokenResponse.access_token) {
             try {
-              // 2. Enviar el token recibido de Google a nuestro backend
               const res = await fetch('/api/auth-google', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -58,7 +45,6 @@
                 throw new Error(data.error || 'Error en la autenticación con Google');
               }
 
-              // 3. Guardar sesión y cerrar el modal de login
               sessionStorage.setItem("usuario", JSON.stringify(data.usuario));
               
               const modal = document.getElementById("login-modal");
@@ -67,8 +53,6 @@
               }
               
               alert(`¡Bienvenido, ${data.usuario.email}! Sesión iniciada correctamente.`);
-              
-              // Opcional: recargar o redirigir a la vista de usuario
               window.location.reload();
 
             } catch (err) {
@@ -80,40 +64,54 @@
     }
   };
 
-// 4. Activar la ventana emergente de Google al hacer clic en el botón personalizado
-document.addEventListener("DOMContentLoaded", () => {
-  const btnGoogle = document.getElementById("btn-google");
-  
-  btnGoogle?.addEventListener("click", () => {
-    if (googleClient) {
-      googleClient.requestAccessToken();
-    } else {
-      alert("El servicio de Google aún se está cargando. Espera un segundo e inténtalo de nuevo.");
-    }
+  document.addEventListener("DOMContentLoaded", () => {
+    const btnGoogle = document.getElementById("btn-google");
+    
+    btnGoogle?.addEventListener("click", () => {
+      if (googleClient) {
+        googleClient.requestAccessToken();
+      } else {
+        alert("El servicio de Google aún se está cargando. Espera un segundo e inténtalo de nuevo.");
+      }
+    });
   });
-});
 
-  // --- LOGIN Y REGISTRO ---
+  // --- LOGIN, REGISTRO Y VERIFICACIÓN POR CÓDIGO ---
   const loginModal = document.getElementById("login-modal");
   const btnOpenLogin = document.getElementById("btn-open-login");
   const loginForm = document.getElementById("login-form");
   const btnRegister = document.getElementById("btn-register");
   const loginError = document.getElementById("login-error");
 
-  // Abrir modal
+  const authStep1 = document.getElementById("auth-step-1");
+  const authStep2 = document.getElementById("auth-step-2");
+  const verifyEmailTarget = document.getElementById("verify-email-target");
+  const verifyForm = document.getElementById("verify-form");
+  const verifyCodeInput = document.getElementById("verify-code");
+  const verifyError = document.getElementById("verify-error");
+  const btnBackToLogin = document.getElementById("btn-back-to-login");
+
+  let emailPendienteVerificar = '';
+
+  // Abrir modal y reiniciar a Paso 1
   btnOpenLogin?.addEventListener("click", () => {
-    loginForm.reset();
-    loginError.hidden = true;
+    loginForm?.reset();
+    verifyForm?.reset();
+    if (loginError) loginError.hidden = true;
+    if (verifyError) verifyError.hidden = true;
+    if (authStep1) authStep1.hidden = false;
+    if (authStep2) authStep2.hidden = true;
     loginModal?.showModal();
   });
 
-  // Función para manejar Login/Registro
-  async function authRequest(endpoint) {
-    const email = document.getElementById("login-email").value;
+  // 1. Iniciar sesión tradicional
+  loginForm?.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const email = document.getElementById("login-email").value.trim();
     const password = document.getElementById("login-pass").value;
 
     try {
-      const response = await fetch(endpoint, {
+      const response = await fetch('/api/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, password })
@@ -122,45 +120,100 @@ document.addEventListener("DOMContentLoaded", () => {
       const data = await response.json();
 
       if (!response.ok) {
-        loginError.textContent = data.error || "Error en la petición";
+        loginError.textContent = data.error || "Error en el inicio de sesión";
         loginError.hidden = false;
         return;
       }
 
-      // Éxito
       loginError.hidden = true;
-      if (endpoint === '/api/login') {
-        alert(`Bienvenido, rol: ${data.usuario.rol}`);
-        // Aquí puedes guardar el usuario en sessionStorage
-        sessionStorage.setItem('usuario', JSON.stringify(data.usuario));
-        loginModal.close();
-      } else {
-        alert("Registro exitoso. Ahora puedes iniciar sesión.");
-      }
+      sessionStorage.setItem('usuario', JSON.stringify(data.usuario));
+      loginModal.close();
+      window.location.reload();
+
     } catch (error) {
       loginError.textContent = "Error de conexión con el servidor.";
       loginError.hidden = false;
     }
-  }
-
-  // Evento Iniciar Sesión (Submit del form)
-  loginForm?.addEventListener("submit", (e) => {
-    e.preventDefault();
-    authRequest('/api/login');
   });
 
-  // Evento Registrarse (Botón secundario)
-  btnRegister?.addEventListener("click", () => {
+  // 2. Registrar usuario -> envía correo con código y pasa al Paso 2
+  btnRegister?.addEventListener("click", async () => {
     if (!loginForm.checkValidity()) {
       loginForm.reportValidity();
       return;
     }
-    authRequest('/api/registro');
+
+    const email = document.getElementById("login-email").value.trim();
+    const password = document.getElementById("login-pass").value;
+
+    try {
+      const response = await fetch('/api/registro', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password })
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        loginError.textContent = data.error || "Error al registrar la cuenta";
+        loginError.hidden = false;
+        return;
+      }
+
+      // Transición al paso 2
+      emailPendienteVerificar = email;
+      if (verifyEmailTarget) verifyEmailTarget.textContent = email;
+      loginError.hidden = true;
+      authStep1.hidden = true;
+      authStep2.hidden = false;
+      verifyCodeInput?.focus();
+
+    } catch (error) {
+      loginError.textContent = "Error de conexión al enviar el registro.";
+      loginError.hidden = false;
+    }
   });
-  
-  // --- TRANSICIONES INSTANTÁNEAS DE ENTRADA ---
-  
-  // 1. Animación fluida al cargar la página (sin esperas previas)
+
+  // 3. Confirmar código de verificación
+  verifyForm?.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const codigo = verifyCodeInput.value.trim();
+
+    try {
+      const response = await fetch('/api/verificar', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: emailPendienteVerificar, codigo })
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        verifyError.textContent = data.error || "Código incorrecto";
+        verifyError.hidden = false;
+        return;
+      }
+
+      alert("¡Cuenta verificada con éxito! Ya puedes iniciar sesión.");
+      
+      authStep2.hidden = true;
+      authStep1.hidden = false;
+      document.getElementById("login-pass").value = "";
+      document.getElementById("login-pass").focus();
+
+    } catch (error) {
+      verifyError.textContent = "Error al verificar el código.";
+      verifyError.hidden = false;
+    }
+  });
+
+  btnBackToLogin?.addEventListener("click", () => {
+    authStep2.hidden = true;
+    authStep1.hidden = false;
+  });
+
+  // --- TRANSICIONES DE ENTRADA DE PÁGINA ---
   document.addEventListener("DOMContentLoaded", () => {
     if (sessionStorage.getItem("animacion-volver") === "true") {
       document.body.style.animation = "slide-in-left 0.4s cubic-bezier(0.25, 0.8, 0.25, 1) forwards";
@@ -170,50 +223,36 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
 
-  // 2. Registrar hacia dónde vamos, pero sin bloquear el salto nativo
   document.querySelectorAll("a").forEach((enlace) => {
     enlace.addEventListener("click", () => {
       const href = enlace.getAttribute("href");
       if (!href || href.startsWith("#")) return;
-      
-      // Guardamos el aviso para que la siguiente página sepa de dónde viene
       if (href.includes("index.html")) {
         sessionStorage.setItem("animacion-volver", "true");
       }
     });
   });
-  // -----------------------------------------------
 
+  // --- MENÚ RESPONSIVE Y PESTAÑAS ---
   const menu = document.querySelector(".menu-toggle");
   const nav = document.getElementById("site-nav");
   function closeMenu() {
     menu?.setAttribute("aria-expanded", "false");
   }
   menu?.addEventListener("click", () => {
-    menu.setAttribute(
-      "aria-expanded",
-      String(menu.getAttribute("aria-expanded") !== "true"),
-    );
+    menu.setAttribute("aria-expanded", String(menu.getAttribute("aria-expanded") !== "true"));
   });
   nav?.addEventListener("click", (event) => {
-    if (event.target instanceof Element && event.target.closest("a"))
-      closeMenu();
+    if (event.target instanceof Element && event.target.closest("a")) closeMenu();
   });
   document.addEventListener("keydown", (event) => {
-    if (
-      event.key === "Escape" &&
-      menu?.getAttribute("aria-expanded") === "true"
-    ) {
+    if (event.key === "Escape" && menu?.getAttribute("aria-expanded") === "true") {
       closeMenu();
       menu.focus();
     }
   });
   document.addEventListener("click", (event) => {
-    if (
-      event.target instanceof Element &&
-      !event.target.closest(".site-header")
-    )
-      closeMenu();
+    if (event.target instanceof Element && !event.target.closest(".site-header")) closeMenu();
   });
   const desktop = window.matchMedia("(min-width: 769px)");
   desktop.addEventListener("change", closeMenu);
@@ -236,8 +275,7 @@ document.addEventListener("DOMContentLoaded", () => {
     tab.addEventListener("keydown", (event) => {
       let target;
       if (event.key === "ArrowRight") target = tabs[(index + 1) % tabs.length];
-      if (event.key === "ArrowLeft")
-        target = tabs[(index - 1 + tabs.length) % tabs.length];
+      if (event.key === "ArrowLeft") target = tabs[(index - 1 + tabs.length) % tabs.length];
       if (event.key === "Home") target = tabs[0];
       if (event.key === "End") target = tabs[tabs.length - 1];
       if (target) {
@@ -248,6 +286,7 @@ document.addEventListener("DOMContentLoaded", () => {
   });
   if (tabs[0]) activateTab(tabs[0]);
 
+  // --- VISOR DE GALERÍA DE INICIO ---
   const gallery = document.getElementById("gallery-dialog");
   const enlarged = document.getElementById("gallery-image");
   const caption = document.getElementById("gallery-caption");
@@ -265,23 +304,15 @@ document.addEventListener("DOMContentLoaded", () => {
   }
   images.forEach((link, index) => {
     link.addEventListener("click", (event) => {
-      if (
-        !(gallery instanceof HTMLDialogElement) ||
-        typeof gallery.showModal !== "function"
-      )
-        return;
+      if (!(gallery instanceof HTMLDialogElement) || typeof gallery.showModal !== "function") return;
       event.preventDefault();
       opener = link;
       updateImage(index);
       gallery.showModal();
     });
   });
-  document
-    .querySelector("[data-gallery-prev]")
-    ?.addEventListener("click", () => updateImage(current - 1));
-  document
-    .querySelector("[data-gallery-next]")
-    ?.addEventListener("click", () => updateImage(current + 1));
+  document.querySelector("[data-gallery-prev]")?.addEventListener("click", () => updateImage(current - 1));
+  document.querySelector("[data-gallery-next]")?.addEventListener("click", () => updateImage(current + 1));
   gallery?.addEventListener("keydown", (event) => {
     if (event.key === "ArrowRight") {
       event.preventDefault();
@@ -310,13 +341,10 @@ document.addEventListener("DOMContentLoaded", () => {
   });
   gallery?.addEventListener("close", () => opener?.focus());
 
-  // No se simulan reservas, pagos ni altas de newsletter.
-  const booking = document.getElementById("booking-dialog");
-  // Redirigir a la página de reservas en lugar de abrir el modal
   document.querySelectorAll("[data-booking]").forEach((link) => {
     link.addEventListener("click", (event) => {
-      event.preventDefault(); // Evita que salte el ancla (href="#contacto")
-      window.location.href = "html/reserva.html"; // Redirige a la página física
+      event.preventDefault();
+      window.location.href = "html/reserva.html";
     });
   });
 })();
