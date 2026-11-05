@@ -31,6 +31,9 @@ export default async function handler(req, res) {
       text: `Tu código de verificación es: ${codigo}`,
       html: `<h2>Bienvenido a Bella Época</h2><p>Tu código de verificación es: <strong>${codigo}</strong></p>`
     });
+
+    const hashPrueba = bcrypt.hashSync('Nasalu_980279', 10);
+    console.log(hashPrueba);
     
     return res.status(201).json({ mensaje: 'Código enviado' });
   } catch (error) {
