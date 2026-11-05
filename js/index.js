@@ -2,6 +2,38 @@
 (() => {
   "use strict";
 
+  document.addEventListener("DOMContentLoaded", () => {
+  const btnOpenLogin = document.getElementById("btn-open-login");
+  const nav = document.getElementById("site-nav");
+  const sesionGuardada = sessionStorage.getItem("usuario");
+
+  if (sesionGuardada && btnOpenLogin) {
+    const usuario = JSON.parse(sesionGuardada);
+    
+    // Cambiar el botón de "Iniciar Sesión" por el correo/nombre del usuario
+    btnOpenLogin.textContent = usuario.email.split('@')[0]; // Muestra la parte inicial del correo
+    btnOpenLogin.id = "btn-user-profile"; // Cambiamos el ID para no disparar el modal
+    
+    // Función rápida para cerrar sesión al hacer clic en su nombre
+    btnOpenLogin.addEventListener("click", (e) => {
+      e.preventDefault();
+      if (confirm("¿Deseas cerrar sesión?")) {
+        sessionStorage.removeItem("usuario");
+        window.location.reload();
+      }
+    });
+
+      // Si es administrador o empleado, añadimos el enlace de "Gestión de Reservas"
+      if (usuario.rol === 'empleado' || usuario.rol === 'administrador') {
+        const enlaceGestion = document.createElement("a");
+        enlaceGestion.href = "html/gestion-mesas.html"; // Nueva página que crearás
+        enlaceGestion.textContent = "Gestión de Mesas";
+        enlaceGestion.style.color = "#d4af37"; // Destacarlo visualmente (dorado)
+        nav.insertBefore(enlaceGestion, btnOpenLogin);
+      }
+    }
+  });
+
   let googleClient;
 
 // 1. Inicializar el cliente de Google cuando cargue la ventana
