@@ -53,8 +53,9 @@
           <a href="#eventos">Eventos</a>
           <a href="#espacio">El espacio</a
           ><a href="#vip">Reservados</a>
-          <a href="#galeria">Galería</a
-          ><a href="#contacto">Contacto</a>
+          <a href="#galeria">Galería</a>
+          <a href="#resenas">Reseñas</a>
+          <a href="#contacto">Contacto</a>
           <button class="btn btn--outline btn--small" id="btn-open-login">Iniciar Sesión</button>
         </nav>
       </div>
@@ -503,7 +504,7 @@
           </p>
         </div>
       </section>
-      <section class="section" id="resenas">
+      <!-- <section class="section" id="resenas">
         <div class="container">
           <div class="section__header">
             <div class="section__intro">
@@ -553,8 +554,8 @@
             </figure>
           </div>
         </div>
-      </section>
-      <section class="section section--surface" id="contacto">
+      </section> -->
+      <section class="section" id="contacto">
         <div class="container contact-grid">
           <div class="contact-copy">
             <div class="section__intro">
@@ -599,6 +600,35 @@
               <p>Mapa pendiente de la dirección confirmada.</p>
             </figcaption>
           </figure>
+        </div>
+      </section>
+      <section class="section section--surface" id="resenas">
+        <div class="container">
+          <div class="section__header">
+            <div class="section__intro">
+              <p class="eyebrow">La voz de la noche</p>
+              <h2>Noches que dejan huella</h2>
+              <p class="body-copy">
+                Un espacio para las experiencias de quienes nos visitan.
+              </p>
+            </div>
+            <!-- Botón para añadir reseña -->
+            <button class="btn btn--primary" id="btn-open-review">Añadir reseña</button>
+          </div>
+
+          <!-- Filtros de reseñas -->
+          <div class="agenda-toolbar" style="margin-bottom: 2rem;">
+            <div class="tabs" role="tablist" aria-label="Filtrar reseñas">
+              <button class="tab" type="button" role="tab" id="tab-res-todas" aria-selected="true" data-filter-review="todas">Todas</button>
+              <button class="tab" type="button" role="tab" id="tab-res-positivas" aria-selected="false" data-filter-review="positivas">Positivas (4-5 ★)</button>
+              <button class="tab" type="button" role="tab" id="tab-res-negativas" aria-selected="false" data-filter-review="negativas">Críticas (1-3 ★)</button>
+            </div>
+          </div>
+
+          <!-- Contenedor donde JS inyectará las reseñas -->
+          <div class="reviews-grid" id="reviews-container">
+            <!-- Se llena mediante JavaScript -->
+          </div>
         </div>
       </section>
     </main>
@@ -785,6 +815,40 @@
         ><a href="#contacto">Contacto</a>
       </nav></noscript
     >
+    <dialog id="review-modal" class="dialog" style="background: transparent; border: none;"> 
+      <div class="dialog__content modal-glass">
+        <button class="btn-close-glass" data-dialog-close aria-label="Cerrar">✕</button>
+        
+        <h2 style="margin-bottom: 0.5rem;">Deja tu reseña</h2>
+        <p style="font-size: 0.85rem; opacity: 0.8; margin-bottom: 1.5rem;">Comparte tu experiencia en Bella Época.</p>
+        
+        <form id="review-form">
+          <div class="form-field" style="text-align: center; margin-bottom: 1rem;">
+            <label class="form-label">Puntuación</label>
+            <!-- Sistema de estrellas interactivo -->
+            <div id="star-rating" style="display: flex; justify-content: center; gap: 0.5rem; font-size: 2rem; cursor: pointer; color: rgba(255,255,255,0.2);">
+              <span data-value="1">★</span>
+              <span data-value="2">★</span>
+              <span data-value="3">★</span>
+              <span data-value="4">★</span>
+              <span data-value="5">★</span>
+            </div>
+            <input type="hidden" id="review-rating" required>
+          </div>
+
+          <div class="form-field" style="text-align: left;">
+            <label class="form-label" for="review-text">Tu comentario</label>
+            <textarea class="form-input" id="review-text" rows="4" required placeholder="¿Qué tal fue la noche?..."></textarea>
+          </div>
+          
+          <p id="review-error" class="form-error" hidden></p>
+          
+          <div class="wizard-actions" style="margin-top: 1.8rem;">
+            <button type="submit" class="btn btn--primary" style="width: 100%;">Publicar reseña</button>
+          </div>
+        </form>
+      </div>
+    </dialog>
     <dialog id="login-modal" class="dialog" style="background: transparent; border: none;"> 
       <style>
         #login-modal::-webkit-scrollbar { display: none; }

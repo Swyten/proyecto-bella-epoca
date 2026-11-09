@@ -2,6 +2,144 @@
 (() => {
   "use strict";
 
+  // --- SISTEMA DE RESEÑAS ---
+  const btnOpenReview = document.getElementById("btn-open-review");
+  const reviewModal = document.getElementById("review-modal");
+  const reviewForm = document.getElementById("review-form");
+  const reviewRatingInput = document.getElementById("review-rating");
+  const starContainer = document.getElementById("star-rating");
+  const reviewsContainer = document.getElementById("reviews-container");
+  const reviewTabs = document.querySelectorAll("[data-filter-review]");
+  const reviewError = document.getElementById("review-error");
+
+  // Base de datos simulada (ordenada por defecto: aquí añadiremos las nuevas)
+  let reseñasData = [
+    { nombre: "Laura M.", estrellas: 5, comentario: "El ambiente es increíble y los cócteles espectaculares. La mejor música de la ciudad.", fecha: "2026-11-08T02:30:00Z" },
+    { nombre: "Carlos G.", estrellas: 4, comentario: "Muy buen trato en la zona de reservados, aunque hacía un poco de calor en la pista principal.", fecha: "2026-11-01T04:15:00Z" },
+    { nombre: "Elena S.", estrellas: 2, comentario: "Demasiada cola para entrar y la música no fue de mi estilo esa noche.", fecha: "2026-10-25T01:10:00Z" }
+  ];
+
+  // Función para renderizar las estrellas en HTML
+  const generarEstrellas = (num) => {
+    let estrellasHTML = '';
+    for (let i = 1; i <= 5; i++) {
+      estrellasHTML += `<span style="color: ${i <= num ? '#d4af37' : 'rgba(255,255,255,0.2)'}">★</span>`;
+    }
+    return estrellasHTML;
+  };
+
+  // Función para pintar reseñas (ordenadas por fecha y filtradas)
+  const pintarReseñas = (filtro = "todas") => {
+    if (!reviewsContainer) return;
+
+    // 1. Filtrar
+    let filtradas = reseñasData.filter(res => {
+      if (filtro === "positivas") return res.estrellas >= 4;
+      if (filtro === "negativas") return res.estrellas <= 3;
+      return true; // "todas"
+    });
+
+    // 2. Ordenar de más reciente a más antigua
+    filtradas.sort((a, b) => new Date(b.fecha) - new Date(a.fecha));
+
+    // 3. Renderizar
+    if (filtradas.length === 0) {
+      reviewsContainer.innerHTML = `<p class="form-hint" style="grid-column: 1 / -1; text-align: center;">No hay reseñas en esta categoría todavía.</p>`;
+      return;
+    }
+
+    reviewsContainer.innerHTML = filtradas.map(res => {
+      const fechaObj = new Date(res.fecha);
+      const fechaFormateada = fechaObj.toLocaleDateString('es-ES', { day: 'numeric', month: 'short', year: 'numeric' });
+      
+      return `
+        <figure class="review" style="display: flex; flex-direction: column; gap: 1rem;">
+          <div style="display: flex; justify-content: space-between; align-items: center;">
+            <p class="eyebrow" style="margin: 0; color: #d4af37;">${res.nombre}</p>
+            <div style="font-size: 1.1rem; letter-spacing: 2px;">${generarEstrellas(res.estrellas)}</div>
+          </div>
+          <blockquote style="margin: 0; flex-grow: 1;">"${res.comentario}"</blockquote>
+          <figcaption style="margin: 0; font-size: 0.8rem; opacity: 0.6; text-align: right;">
+            ${fechaFormateada}
+          </figcaption>
+        </figure>
+      `;
+    }).join("");
+  };
+
+  // Eventos de los filtros (Tabs)
+  reviewTabs.forEach(tab => {
+    tab.addEventListener("click", () => {
+      reviewTabs.forEach(t => t.setAttribute("aria-selected", "false"));
+      tab.setAttribute("aria-selected", "true");
+      pintarReseñas(tab.dataset.filterReview);
+    });
+  });
+
+  // Pintar inicial
+  pintarReseñas();
+
+  // --- LÓGICA DEL FORMULARIO DE RESEÑAS ---
+
+  // Abrir modal de reseña (comprueba si está logueado)
+  btnOpenReview?.addEventListener("click", () => {
+    const sesion = sessionStorage.getItem("usuario");
+    if (!sesion) {
+      alert("Debes iniciar sesión para dejar una reseña.");
+      document.getElementById("login-modal")?.showModal();
+      return;
+    }
+    reviewForm.reset();
+    reviewRatingInput.value = "";
+    Array.from(starContainer.children).forEach(s => s.style.color = 'rgba(255,255,255,0.2)');
+    if (reviewError) reviewError.hidden = true;
+    reviewModal?.showModal();
+  });
+
+  // Selector interactivo de estrellas
+  if (starContainer) {
+    starContainer.addEventListener("click", (e) => {
+      if (e.target.tagName === "SPAN") {
+        const valor = e.target.dataset.value;
+        reviewRatingInput.value = valor;
+        Array.from(starContainer.children).forEach(star => {
+          star.style.color = star.dataset.value <= valor ? '#d4af37' : 'rgba(255,255,255,0.2)';
+        });
+      }
+    });
+  }
+
+  // Enviar reseña nueva
+  reviewForm?.addEventListener("submit", (e) => {
+    e.preventDefault();
+    
+    if (!reviewRatingInput.value) {
+      reviewError.textContent = "Por favor, selecciona una puntuación de estrellas.";
+      reviewError.hidden = false;
+      return;
+    }
+
+    const usuario = JSON.parse(sessionStorage.getItem("usuario"));
+    const nuevoComentario = document.getElementById("review-text").value.trim();
+    
+    const nuevaResena = {
+      nombre: usuario.email.split('@')[0], // Usamos la primera parte del email como nombre
+      estrellas: parseInt(reviewRatingInput.value),
+      comentario: nuevoComentario,
+      fecha: new Date().toISOString() // Fecha actual exacta
+    };
+
+    // Añadir al principio del array simulado
+    reseñasData.push(nuevaResena);
+    
+    // Forzar pestaña "Todas" y repintar
+    reviewTabs.forEach(t => t.setAttribute("aria-selected", t.dataset.filterReview === "todas" ? "true" : "false"));
+    pintarReseñas("todas");
+    
+    reviewModal.close();
+    alert("¡Gracias por tu reseña!");
+  });
+
   // --- DETECCIÓN DE SESIÓN EN LA NAVEGACIÓN ---
   document.addEventListener("DOMContentLoaded", () => {
     const btnOpenLogin = document.getElementById("btn-open-login");
