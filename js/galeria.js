@@ -3,6 +3,54 @@
   "use strict";
 
   document.addEventListener("DOMContentLoaded", () => {
+    const btnOpenLogin = document.getElementById("btn-open-login");
+    const userWrapper = document.getElementById("user-profile-wrapper");
+    const btnUserProfile = document.getElementById("btn-user-profile");
+    const userNameLabel = document.getElementById("user-name-label");
+    const userEmailInfo = document.getElementById("user-email-info");
+    const userDropdownMenu = document.getElementById("user-dropdown-menu");
+    const btnLogout = document.getElementById("btn-logout");
+
+    const sesionGuardada = sessionStorage.getItem("usuario");
+
+    if (sesionGuardada && userWrapper) {
+      const usuario = JSON.parse(sesionGuardada);
+      if (btnOpenLogin) btnOpenLogin.hidden = true;
+      userWrapper.hidden = false;
+
+      if (userNameLabel) userNameLabel.textContent = usuario.email.split('@')[0];
+      if (userEmailInfo) userEmailInfo.textContent = usuario.email;
+
+      btnUserProfile?.addEventListener("click", (e) => {
+        e.stopPropagation();
+        const estaAbierto = !userDropdownMenu.hidden;
+        userDropdownMenu.hidden = estaAbierto;
+        btnUserProfile.setAttribute("aria-expanded", String(!estaAbierto));
+      });
+
+      document.addEventListener("click", (e) => {
+        if (userWrapper && !userWrapper.contains(e.target)) {
+          if (userDropdownMenu) userDropdownMenu.hidden = true;
+          btnUserProfile?.setAttribute("aria-expanded", "false");
+        }
+      });
+
+      btnLogout?.addEventListener("click", () => {
+        sessionStorage.removeItem("usuario");
+        window.location.href = "../index.html";
+      });
+    } else {
+      if (btnOpenLogin) {
+        btnOpenLogin.hidden = false;
+        btnOpenLogin.addEventListener("click", () => {
+          window.location.href = "../index.html";
+        });
+      }
+      if (userWrapper) userWrapper.hidden = true;
+    }
+  });
+
+  document.addEventListener("DOMContentLoaded", () => {
   const btnOpenLogin = document.getElementById("btn-open-login");
   const nav = document.getElementById("site-nav");
   const sesionGuardada = sessionStorage.getItem("usuario");

@@ -30,6 +30,21 @@
         <nav class="site-nav" aria-label="Principal">
           <a href="../index.html">Inicio</a>
           <a href="reserva.html">Reservar mesa</a>
+          <!-- Botón de Iniciar Sesión (redirige al inicio si no hay sesión) -->
+          <button class="btn btn--outline btn--small" id="btn-open-login">Iniciar Sesión</button>
+
+          <!-- Desplegable de usuario para subpáginas -->
+          <div id="user-profile-wrapper" style="position: relative; display: inline-block;" hidden>
+            <button class="btn btn--outline btn--small" id="btn-user-profile" type="button" aria-expanded="false" style="display: flex; align-items: center; gap: 0.4rem;">
+              <span id="user-name-label">Usuario</span>
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m6 9 6 6 6-6"/></svg>
+            </button>
+            
+            <div id="user-dropdown-menu" hidden style="position: absolute; right: 0; top: calc(100% + 0.5rem); background: rgba(34, 34, 34, 0.95); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); border: 1px solid rgba(212, 175, 55, 0.3); border-radius: 8px; padding: 0.6rem; min-width: 180px; box-shadow: 0 8px 32px rgba(0,0,0,0.6); z-index: 1000; text-align: left;">
+              <div id="user-email-info" style="font-size: 0.8rem; color: #d4af37; padding: 0.3rem 0.5rem 0.6rem; border-bottom: 1px solid rgba(255,255,255,0.1); margin-bottom: 0.5rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;"></div>
+              <button type="button" id="btn-logout" class="btn btn--outline btn--small" style="width: 100%; justify-content: center; color: #ff6b6b; border-color: rgba(255,107,107,0.4); background: rgba(255,107,107,0.05);">Cerrar Sesión</button>
+            </div>
+          </div>
         </nav>
       </div>
     </header>

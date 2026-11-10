@@ -491,7 +491,13 @@
   document.querySelectorAll("[data-booking]").forEach((link) => {
     link.addEventListener("click", (event) => {
       event.preventDefault();
-      window.location.href = "html/reserva.html";
+      const sesion = sessionStorage.getItem("usuario");
+      if (!sesion) {
+        alert("Debes iniciar sesión para realizar una reserva.");
+        document.getElementById("login-modal")?.showModal();
+      } else {
+        window.location.href = "html/reserva.html";
+      }
     });
   });
 })();

@@ -2,6 +2,99 @@
 (() => {
   "use strict";
 
+  document.addEventListener("DOMContentLoaded", () => {
+    const btnOpenLogin = document.getElementById("btn-open-login");
+    const userWrapper = document.getElementById("user-profile-wrapper");
+    const btnUserProfile = document.getElementById("btn-user-profile");
+    const userNameLabel = document.getElementById("user-name-label");
+    const userEmailInfo = document.getElementById("user-email-info");
+    const userDropdownMenu = document.getElementById("user-dropdown-menu");
+    const btnLogout = document.getElementById("btn-logout");
+
+    const sesionGuardada = sessionStorage.getItem("usuario");
+
+    if (sesionGuardada && userWrapper) {
+      const usuario = JSON.parse(sesionGuardada);
+      if (btnOpenLogin) btnOpenLogin.hidden = true;
+      userWrapper.hidden = false;
+
+      if (userNameLabel) userNameLabel.textContent = usuario.email.split('@')[0];
+      if (userEmailInfo) userEmailInfo.textContent = usuario.email;
+
+      btnUserProfile?.addEventListener("click", (e) => {
+        e.stopPropagation();
+        const estaAbierto = !userDropdownMenu.hidden;
+        userDropdownMenu.hidden = estaAbierto;
+        btnUserProfile.setAttribute("aria-expanded", String(!estaAbierto));
+      });
+
+      document.addEventListener("click", (e) => {
+        if (userWrapper && !userWrapper.contains(e.target)) {
+          if (userDropdownMenu) userDropdownMenu.hidden = true;
+          btnUserProfile?.setAttribute("aria-expanded", "false");
+        }
+      });
+
+      btnLogout?.addEventListener("click", () => {
+        sessionStorage.removeItem("usuario");
+        window.location.href = "../index.html";
+      });
+    } else {
+      if (btnOpenLogin) {
+        btnOpenLogin.hidden = false;
+        btnOpenLogin.addEventListener("click", () => {
+          window.location.href = "../index.html";
+        });
+      }
+      if (userWrapper) userWrapper.hidden = true;
+    }
+  });
+
+  // --- PROTECCIÓN DE ACCESO: REQUERIR SESIÓN ---
+  const sesionGuardada = sessionStorage.getItem("usuario");
+  if (!sesionGuardada) {
+    alert("Debes iniciar sesión para acceder al sistema de reservas.");
+    window.location.href = "../index.html";
+    return;
+  }
+
+  // --- CONTROL DE SESIÓN EN LA CABECERA ---
+  document.addEventListener("DOMContentLoaded", () => {
+    const btnOpenLogin = document.getElementById("btn-open-login");
+    const userWrapper = document.getElementById("user-profile-wrapper");
+    const btnUserProfile = document.getElementById("btn-user-profile");
+    const userNameLabel = document.getElementById("user-name-label");
+    const userEmailInfo = document.getElementById("user-email-info");
+    const userDropdownMenu = document.getElementById("user-dropdown-menu");
+    const btnLogout = document.getElementById("btn-logout");
+
+    const usuario = JSON.parse(sesionGuardada);
+    if (btnOpenLogin) btnOpenLogin.hidden = true;
+    if (userWrapper) userWrapper.hidden = false;
+
+    if (userNameLabel) userNameLabel.textContent = usuario.email.split('@')[0];
+    if (userEmailInfo) userEmailInfo.textContent = usuario.email;
+
+    btnUserProfile?.addEventListener("click", (e) => {
+      e.stopPropagation();
+      const estaAbierto = !userDropdownMenu.hidden;
+      userDropdownMenu.hidden = estaAbierto;
+      btnUserProfile.setAttribute("aria-expanded", String(!estaAbierto));
+    });
+
+    document.addEventListener("click", (e) => {
+      if (userWrapper && !userWrapper.contains(e.target)) {
+        if (userDropdownMenu) userDropdownMenu.hidden = true;
+        btnUserProfile?.setAttribute("aria-expanded", "false");
+      }
+    });
+
+    btnLogout?.addEventListener("click", () => {
+      sessionStorage.removeItem("usuario");
+      window.location.href = "../index.html";
+    });
+  });
+
   // Transiciones de página
   document.addEventListener("DOMContentLoaded", () => {
     if (sessionStorage.getItem("animacion-volver") === "true") {
@@ -10,16 +103,6 @@
     } else {
       document.body.style.animation = "slide-in-right 0.4s cubic-bezier(0.25, 0.8, 0.25, 1) forwards";
     }
-  });
-
-  document.querySelectorAll("a").forEach((enlace) => {
-    enlace.addEventListener("click", () => {
-      const href = enlace.getAttribute("href");
-      if (!href || href.startsWith("#")) return;
-      if (href.includes("index.html")) {
-        sessionStorage.setItem("animacion-volver", "true");
-      }
-    });
   });
 
   const form = document.getElementById("booking-form");
@@ -38,22 +121,19 @@
   const mesaError = document.getElementById("mesa-error");
 
   // Detección de Rol
-  const sesion = JSON.parse(sessionStorage.getItem("usuario") || "{}");
+  const sesion = JSON.parse(sesionGuardada || "{}");
   const esEmpleado = sesion.rol === 'empleado' || sesion.rol === 'administrador';
 
   // Configuración de vista según el rol
   if (esEmpleado) {
-    // 1. Cambiar títulos e instrucciones de la página
     document.getElementById("reserva-title").textContent = "Control y Gestión de Mesas";
     const introCopy = form.closest(".container").querySelector(".body-copy");
     if (introCopy) introCopy.textContent = "Panel de control en tiempo real del estado de los reservados y asignación de clientes.";
 
-    // 2. Ocultar componentes del wizard de reserva pública
     if (wizardSteps) wizardSteps.style.display = "none";
     const wizardActions = form.querySelector('[data-step="1"] .wizard-actions');
     if (wizardActions) wizardActions.style.display = "none";
 
-    // 3. Adaptar la cabecera de la tabla para mostrar información del cliente
     if (thead) {
       thead.innerHTML = `
         <th scope="col">Mesa</th>
@@ -100,7 +180,6 @@
         const tr = document.createElement("tr");
 
         if (esEmpleado) {
-          // VISTA EMPLEADO: Muestra quién la tiene reservada y omite los radio buttons
           const clienteInfo = mesa.disponible 
             ? '<span style="opacity: 0.6; font-style: italic;">Sin reserva</span>'
             : `<strong style="color: #d4af37;">${mesa.cliente_nombre || 'Cliente asignado'}</strong>`;
@@ -114,7 +193,6 @@
             <td>${clienteInfo}</td>
           `;
         } else {
-          // VISTA CLIENTE: Wizard normal de reserva
           const disabledAttr = mesa.disponible ? "" : "disabled";
           tr.className = mesa.disponible ? "is-selectable" : "is-disabled";
           tr.innerHTML = `
@@ -155,7 +233,6 @@
     });
   }
 
-  // Eventos para el wizard de cliente
   if (!esEmpleado) {
     next?.addEventListener("click", () => {
       const mesa = selected();
@@ -187,7 +264,6 @@
         return;
       }
 
-      // Registro de reserva
       const payload = {
         mesa: selected().value,
         nombre: nombre.value.trim(),
