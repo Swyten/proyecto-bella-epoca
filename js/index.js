@@ -12,11 +12,67 @@
   const reviewTabs = document.querySelectorAll("[data-filter-review]");
   const reviewError = document.getElementById("review-error");
 
-  let reseñasData = [
-    { nombre: "Laura M.", estrellas: 5, comentario: "El ambiente es increíble y los cócteles espectaculares. La mejor música de la ciudad.", fecha: "2026-11-08T02:30:00Z" },
-    { nombre: "Carlos G.", estrellas: 4, comentario: "Muy buen trato en la zona de reservados, aunque hacía un poco de calor en la pista principal.", fecha: "2026-11-01T04:15:00Z" },
-    { nombre: "Elena S.", estrellas: 2, comentario: "Demasiada cola para entrar y la música no fue de mi estilo esa noche.", fecha: "2026-10-25T01:10:00Z" }
-  ];
+  // Array dinámico que se llenará desde Neon
+  let reseñasData = [];
+
+  // Función para cargar reseñas desde la base de datos
+  async function cargarReseñas() {
+    if (!reviewsContainer) return;
+    reviewsContainer.innerHTML = '<p class="form-hint" style="grid-column: 1 / -1; text-align: center;">Cargando opiniones...</p>';
+
+    try {
+      const response = await fetch('/api/resenas');
+      reseñasData = await response.json();
+      
+      const tabActiva = document.querySelector('[data-filter-review][aria-selected="true"]');
+      pintarReseñas(tabActiva ? tabActiva.dataset.filterReview : "todas");
+    } catch (error) {
+      reviewsContainer.innerHTML = '<p class="form-hint" style="grid-column: 1 / -1; text-align: center; color: #ff6b6b;">Error al cargar las reseñas.</p>';
+    }
+  }
+
+  // Enviar reseña nueva a la base de datos
+  reviewForm?.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    
+    if (!reviewRatingInput.value) {
+      reviewError.textContent = "Por favor, selecciona una puntuación de estrellas.";
+      reviewError.hidden = false;
+      return;
+    }
+
+    const usuario = JSON.parse(sessionStorage.getItem("usuario"));
+    const nuevoComentario = document.getElementById("review-text").value.trim();
+    
+    const payload = {
+      nombre: usuario.email.split('@')[0],
+      estrellas: parseInt(reviewRatingInput.value),
+      comentario: nuevoComentario
+    };
+
+    try {
+      const res = await fetch('/api/crearResena', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+
+      if (!res.ok) throw new Error("Error al guardar");
+
+      reviewModal.close();
+      alert("¡Gracias por tu reseña!");
+      
+      // Recargar la lista desde la base de datos para mostrar la nueva reseña a todos
+      await cargarReseñas();
+
+    } catch (err) {
+      reviewError.textContent = "Hubo un error al publicar tu reseña. Inténtalo de nuevo.";
+      reviewError.hidden = false;
+    }
+  });
+
+  // Carga inicial al entrar a la página
+  cargarReseñas();
 
   const generarEstrellas = (num) => {
     let estrellasHTML = '';
