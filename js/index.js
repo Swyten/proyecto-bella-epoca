@@ -32,6 +32,7 @@
   }
 
   // Enviar reseña nueva a la base de datos
+  // Enviar reseña nueva a la base de datos (Único escuchador)
   reviewForm?.addEventListener("submit", async (e) => {
     e.preventDefault();
     
@@ -45,24 +46,22 @@
     const nuevoComentario = document.getElementById("review-text").value.trim();
     
     const payload = {
-      nombre: usuario.email.split('@')[0],
+      nombre: usuario ? usuario.email.split('@')[0] : "Anónimo",
       estrellas: parseInt(reviewRatingInput.value),
       comentario: nuevoComentario
     };
 
     try {
-      const res = await fetch('/api/crearResena', {
+      const res = await fetch('/api/resenas', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload)
       });
 
-      if (!res.ok) throw new Error("Error al guardar");
+      if (!res.ok) throw new Error("Error al guardar la reseña");
 
       reviewModal.close();
       alert("¡Gracias por tu reseña!");
-      
-      // Recargar la lista desde la base de datos para mostrar la nueva reseña a todos
       await cargarReseñas();
 
     } catch (err) {
@@ -152,34 +151,6 @@
       }
     });
   }
-
-  reviewForm?.addEventListener("submit", (e) => {
-    e.preventDefault();
-    
-    if (!reviewRatingInput.value) {
-      reviewError.textContent = "Por favor, selecciona una puntuación de estrellas.";
-      reviewError.hidden = false;
-      return;
-    }
-
-    const usuario = JSON.parse(sessionStorage.getItem("usuario"));
-    const nuevoComentario = document.getElementById("review-text").value.trim();
-    
-    const nuevaResena = {
-      nombre: usuario.email.split('@')[0],
-      estrellas: parseInt(reviewRatingInput.value),
-      comentario: nuevoComentario,
-      fecha: new Date().toISOString()
-    };
-
-    reseñasData.push(nuevaResena);
-    
-    reviewTabs.forEach(t => t.setAttribute("aria-selected", t.dataset.filterReview === "todas" ? "true" : "false"));
-    pintarReseñas("todas");
-    
-    reviewModal.close();
-    alert("¡Gracias por tu reseña!");
-  });
 
   // --- DETECCIÓN DE SESIÓN Y MENÚ DESPLEGABLE DE PERFIL ---
   document.addEventListener("DOMContentLoaded", () => {
