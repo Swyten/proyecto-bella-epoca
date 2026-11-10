@@ -12,14 +12,12 @@
   const reviewTabs = document.querySelectorAll("[data-filter-review]");
   const reviewError = document.getElementById("review-error");
 
-  // Base de datos simulada (ordenada por defecto: aquí añadiremos las nuevas)
   let reseñasData = [
     { nombre: "Laura M.", estrellas: 5, comentario: "El ambiente es increíble y los cócteles espectaculares. La mejor música de la ciudad.", fecha: "2026-11-08T02:30:00Z" },
     { nombre: "Carlos G.", estrellas: 4, comentario: "Muy buen trato en la zona de reservados, aunque hacía un poco de calor en la pista principal.", fecha: "2026-11-01T04:15:00Z" },
     { nombre: "Elena S.", estrellas: 2, comentario: "Demasiada cola para entrar y la música no fue de mi estilo esa noche.", fecha: "2026-10-25T01:10:00Z" }
   ];
 
-  // Función para renderizar las estrellas en HTML
   const generarEstrellas = (num) => {
     let estrellasHTML = '';
     for (let i = 1; i <= 5; i++) {
@@ -28,21 +26,17 @@
     return estrellasHTML;
   };
 
-  // Función para pintar reseñas (ordenadas por fecha y filtradas)
   const pintarReseñas = (filtro = "todas") => {
     if (!reviewsContainer) return;
 
-    // 1. Filtrar
     let filtradas = reseñasData.filter(res => {
       if (filtro === "positivas") return res.estrellas >= 4;
       if (filtro === "negativas") return res.estrellas <= 3;
-      return true; // "todas"
+      return true;
     });
 
-    // 2. Ordenar de más reciente a más antigua
     filtradas.sort((a, b) => new Date(b.fecha) - new Date(a.fecha));
 
-    // 3. Renderizar
     if (filtradas.length === 0) {
       reviewsContainer.innerHTML = `<p class="form-hint" style="grid-column: 1 / -1; text-align: center;">No hay reseñas en esta categoría todavía.</p>`;
       return;
@@ -67,7 +61,6 @@
     }).join("");
   };
 
-  // Eventos de los filtros (Tabs)
   reviewTabs.forEach(tab => {
     tab.addEventListener("click", () => {
       reviewTabs.forEach(t => t.setAttribute("aria-selected", "false"));
@@ -76,12 +69,8 @@
     });
   });
 
-  // Pintar inicial
   pintarReseñas();
 
-  // --- LÓGICA DEL FORMULARIO DE RESEÑAS ---
-
-  // Abrir modal de reseña (comprueba si está logueado)
   btnOpenReview?.addEventListener("click", () => {
     const sesion = sessionStorage.getItem("usuario");
     if (!sesion) {
@@ -96,7 +85,6 @@
     reviewModal?.showModal();
   });
 
-  // Selector interactivo de estrellas
   if (starContainer) {
     starContainer.addEventListener("click", (e) => {
       if (e.target.tagName === "SPAN") {
@@ -109,7 +97,6 @@
     });
   }
 
-  // Enviar reseña nueva
   reviewForm?.addEventListener("submit", (e) => {
     e.preventDefault();
     
@@ -123,16 +110,14 @@
     const nuevoComentario = document.getElementById("review-text").value.trim();
     
     const nuevaResena = {
-      nombre: usuario.email.split('@')[0], // Usamos la primera parte del email como nombre
+      nombre: usuario.email.split('@')[0],
       estrellas: parseInt(reviewRatingInput.value),
       comentario: nuevoComentario,
-      fecha: new Date().toISOString() // Fecha actual exacta
+      fecha: new Date().toISOString()
     };
 
-    // Añadir al principio del array simulado
     reseñasData.push(nuevaResena);
     
-    // Forzar pestaña "Todas" y repintar
     reviewTabs.forEach(t => t.setAttribute("aria-selected", t.dataset.filterReview === "todas" ? "true" : "false"));
     pintarReseñas("todas");
     
@@ -140,23 +125,52 @@
     alert("¡Gracias por tu reseña!");
   });
 
-  // --- DETECCIÓN DE SESIÓN EN LA NAVEGACIÓN ---
+  // --- DETECCIÓN DE SESIÓN Y MENÚ DESPLEGABLE DE PERFIL ---
   document.addEventListener("DOMContentLoaded", () => {
     const btnOpenLogin = document.getElementById("btn-open-login");
+    const userWrapper = document.getElementById("user-profile-wrapper");
+    const btnUserProfile = document.getElementById("btn-user-profile");
+    const userNameLabel = document.getElementById("user-name-label");
+    const userEmailInfo = document.getElementById("user-email-info");
+    const userDropdownMenu = document.getElementById("user-dropdown-menu");
+    const btnLogout = document.getElementById("btn-logout");
+
     const sesionGuardada = sessionStorage.getItem("usuario");
 
-    if (sesionGuardada && btnOpenLogin) {
+    if (sesionGuardada && userWrapper && btnOpenLogin) {
       const usuario = JSON.parse(sesionGuardada);
-      btnOpenLogin.textContent = usuario.email.split('@')[0];
-      btnOpenLogin.id = "btn-user-profile";
       
-      btnOpenLogin.addEventListener("click", (e) => {
-        e.preventDefault();
-        if (confirm("¿Deseas cerrar sesión?")) {
-          sessionStorage.removeItem("usuario");
-          window.location.reload();
+      // Conmutar interfaz: ocultar botón login y mostrar perfil
+      btnOpenLogin.hidden = true;
+      userWrapper.hidden = false;
+
+      if (userNameLabel) userNameLabel.textContent = usuario.email.split('@')[0];
+      if (userEmailInfo) userEmailInfo.textContent = usuario.email;
+
+      // Desplegar / Ocultar menú al hacer clic en el botón de usuario
+      btnUserProfile?.addEventListener("click", (e) => {
+        e.stopPropagation();
+        const estaAbierto = !userDropdownMenu.hidden;
+        userDropdownMenu.hidden = estaAbierto;
+        btnUserProfile.setAttribute("aria-expanded", String(!estaAbierto));
+      });
+
+      // Cerrar desplegable si se hace clic fuera
+      document.addEventListener("click", (e) => {
+        if (!userWrapper.contains(e.target)) {
+          if (userDropdownMenu) userDropdownMenu.hidden = true;
+          btnUserProfile?.setAttribute("aria-expanded", "false");
         }
       });
+
+      // Acción de Cerrar Sesión
+      btnLogout?.addEventListener("click", () => {
+        sessionStorage.removeItem("usuario");
+        window.location.reload();
+      });
+    } else {
+      if (btnOpenLogin) btnOpenLogin.hidden = false;
+      if (userWrapper) userWrapper.hidden = true;
     }
   });
 
@@ -231,7 +245,6 @@
 
   let emailPendienteVerificar = '';
 
-  // Abrir modal y reiniciar a Paso 1
   btnOpenLogin?.addEventListener("click", () => {
     loginForm?.reset();
     verifyForm?.reset();
@@ -242,7 +255,6 @@
     loginModal?.showModal();
   });
 
-  // 1. Iniciar sesión tradicional
   loginForm?.addEventListener("submit", async (e) => {
     e.preventDefault();
     const email = document.getElementById("login-email").value.trim();
@@ -274,7 +286,6 @@
     }
   });
 
-  // 2. Registrar usuario -> envía correo con código y pasa al Paso 2
   btnRegister?.addEventListener("click", async () => {
     if (!loginForm.checkValidity()) {
       loginForm.reportValidity();
@@ -299,7 +310,6 @@
         return;
       }
 
-      // Transición al paso 2
       emailPendienteVerificar = email;
       if (verifyEmailTarget) verifyEmailTarget.textContent = email;
       loginError.hidden = true;
@@ -313,7 +323,6 @@
     }
   });
 
-  // 3. Confirmar código de verificación
   verifyForm?.addEventListener("submit", async (e) => {
     e.preventDefault();
     const codigo = verifyCodeInput.value.trim();
@@ -351,7 +360,7 @@
     authStep1.hidden = false;
   });
 
-  // --- TRANSICIONES DE ENTRADA DE PÁGINA ---
+  // --- TRANSICIONES DE ENTRADA ---
   document.addEventListener("DOMContentLoaded", () => {
     if (sessionStorage.getItem("animacion-volver") === "true") {
       document.body.style.animation = "slide-in-left 0.4s cubic-bezier(0.25, 0.8, 0.25, 1) forwards";
