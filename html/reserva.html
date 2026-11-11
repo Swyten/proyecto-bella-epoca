@@ -61,13 +61,21 @@
 
           <form class="form wizard" id="booking-form" novalidate>
             <ol class="wizard-steps" aria-label="Pasos de la reserva">
-              <li data-step-label="1" aria-current="step">1 · Mesa</li>
+              <li data-step-label="1" aria-current="step">1 · Fecha y Mesa</li>
               <li data-step-label="2">2 · Tus datos</li>
             </ol>
 
-            <!-- PASO 1: elegir mesa -->
+            <!-- PASO 1: elegir fecha y mesa -->
             <fieldset class="wizard-panel" data-step="1">
-              <legend class="form-label">Mesas disponibles</legend>
+              <legend class="form-label">Elige la fecha y tu mesa</legend>
+              
+              <!-- NUEVO: Selector de Fecha -->
+              <div class="form-field" style="margin-bottom: 2rem;">
+                <label class="form-label" for="fecha-reserva">Fecha de la reserva *</label>
+                <input class="form-input" id="fecha-reserva" name="fecha_reserva" type="date" required />
+                <p class="form-hint" style="margin-top: 0.4rem;">Abrimos de miércoles a domingo. Disponible con hasta 1 mes de antelación.</p>
+              </div>
+
               <div class="table-wrap">
                 <table class="data-table">
                   <thead>
@@ -81,6 +89,7 @@
                     </tr>
                   </thead>
                   <tbody id="tabla-mesas">
+                    <!-- Se llena dinámicamente con JS -->
                   </tbody>
                 </table>
               </div>
@@ -91,10 +100,11 @@
               </div>
             </fieldset>
 
-            <!-- PASO 2: nombre -->
+            <!-- PASO 2: tus datos y tipo de reserva -->
             <fieldset class="wizard-panel" data-step="2" hidden>
               <legend class="form-label">Tus datos</legend>
               <p class="booking-summary">Mesa elegida: <strong id="summary-mesa">—</strong></p>
+              
               <div class="form-field">
                 <label class="form-label" for="nombre">Nombre de la reserva *</label>
                 <input class="form-input" id="nombre" name="nombre" type="text" autocomplete="name"
@@ -102,6 +112,24 @@
                   aria-describedby="nombre-error" />
                 <p class="form-error" id="nombre-error" hidden>Introduce un nombre para realizar la reserva.</p>
               </div>
+
+              <!-- NUEVO: Tipo de Reserva -->
+              <div class="form-field">
+                <label class="form-label" for="tipo-reserva">Tipo de reserva *</label>
+                <select class="form-input" id="tipo-reserva" name="tipo_reserva" required>
+                  <option value="generica" selected>Reserva genérica</option>
+                  <option value="cumpleanos">Celebración de cumpleaños</option>
+                </select>
+              </div>
+
+              <!-- NUEVO: Nombre del cumpleañero (Oculto por defecto) -->
+              <div class="form-field" id="capa-cumpleanero" hidden>
+                <label class="form-label" for="nombre-cumpleanero">Nombre del cumpleañero/a *</label>
+                <input class="form-input" id="nombre-cumpleanero" name="nombre_cumpleanero" type="text" 
+                  placeholder="Ej. Marta" maxlength="60" />
+                <p class="form-hint" style="margin-top: 0.4rem;">Para felicitarle de forma especial durante la noche en la discoteca.</p>
+              </div>
+
               <div class="wizard-actions">
                 <button class="btn btn--outline" type="button" id="btn-back">Atrás</button>
                 <button class="btn btn--primary" type="submit" id="btn-submit" disabled>Realizar reserva</button>
