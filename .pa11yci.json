@@ -1,0 +1,12 @@
+{
+  "defaults": {
+    "standard": "WCAG2AAA",
+    "timeout": 60000
+  },
+  "urls": [
+    "https://proyecto-bella-epoca.vercel.app/",
+    "https://proyecto-bella-epoca.vercel.app/html/eventos.html",
+    "https://proyecto-bella-epoca.vercel.app/html/galeria.html",
+    "https://proyecto-bella-epoca.vercel.app/html/reserva.html"
+  ]
+}
