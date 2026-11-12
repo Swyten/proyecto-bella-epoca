@@ -9,43 +9,6 @@
   ESTADOS: aria-selected, aria-expanded, aria-current y hidden deberán
   reflejar el estado real de los controles en el futuro HTML/JavaScript.
   ========================================================================== */
-  
-/* 1. Asegura un fondo base sólido en la raíz para evitar NaN en elementos transparentes */
-html,
-body {
-  background-color: #0a0a0c;
-  color: #f5f5f7;
-}
-
-/* 2. Cabecera con fondo sólido (evita el NaN provocado por rgba/backdrop-filter) */
-.site-header {
-  background-color: #0a0a0c;
-  color: #f5f5f7;
-}
-
-.brand__monogram {
-  background-color: #18181c;
-  color: #f5f5f7;
-}
-
-.brand__name,
-.site-nav a {
-  color: #f5f5f7;
-}
-
-/* 3. Botones outline con fondo oscuro sólido en lugar de transparent
-      (soluciona el NaN sobre .hero__media y en #user-name-label) */
-.btn--outline {
-  background-color: #141418;
-  color: #f5f5f7;
-  border-color: #d4af37;
-}
-
-.btn--outline:hover,
-.btn--outline:focus-visible {
-  background-color: #222228;
-  color: #ffffff;
-}
   /* 01. TOKENS — Paleta exacta de la guía, expresada en OKLCH. */
   :root {
   --night: oklch(0 0 0); /* #000000 */
@@ -335,12 +298,10 @@ body {
   background: var(--primary-hover);
   }
   .btn--outline {
-  background: rgba(255, 255, 255, 0.05);
+  background-color: var(--surface);
   color: var(--primary);
   border: 1px solid var(--primary);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
-  }
+}
   .btn--outline:hover {
   background: var(--outline-hover);
   color: var(--primary-hover);
@@ -384,13 +345,13 @@ body {
 
   /* 05. CABECERA Y NAVEGACIÓN (ESCRITORIO) */
   .site-header {
-  background-color: rgba(0, 0, 0, 0.7);
+  background-color: var(--background);
   position: absolute;
   inset: 0 0 auto;
   z-index: 20;
   min-height: var(--header-height);
-  border-bottom: 1px solid color-mix(in oklch, var(--white) 12%, transparent);
-  }
+  border-bottom: 1px solid var(--border);
+}
   .site-header__inner {
   /* Se elimina flex-wrap: wrap aquí para escritorio, se añade solo en móvil */
   min-height: var(--header-height);
