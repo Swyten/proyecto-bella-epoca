@@ -2,6 +2,13 @@
 (() => {
   "use strict";
 
+  // --- INICIO DE SESIÓN AUTOMÁTICO PARA PRUEBAS (Eliminar al terminar) ---
+  sessionStorage.setItem("usuario", JSON.stringify({
+    id: 1,
+    email: "pruebas@bellaepoca.es",
+    rol: "usuario" // Cambia a "administrador" para probar las vistas de gestión
+  }));
+
   // --- SISTEMA DE RESEÑAS ---
   const btnOpenReview = document.getElementById("btn-open-review");
   const reviewModal = document.getElementById("review-modal");
