@@ -5,8 +5,8 @@
   // =========================================================
   // 1. GESTIÓN DE SESIÓN Y CABECERA
   // =========================================================
-  //const sesionGuardada = sessionStorage.getItem("usuario");
-  const sesionGuardada = sessionStorage.getItem("usuario") || JSON.stringify({ email: "auditoria@bellaepoca.com", rol: "usuario" });
+  const sesionGuardada = sessionStorage.getItem("usuario");
+  //const sesionGuardada = sessionStorage.getItem("usuario") || JSON.stringify({ email: "auditoria@bellaepoca.com", rol: "empleado" }); Auditoría de accesibilidad.
 
   // Redirigir si no hay sesión (Protección de la página de reservas)
   if (!sesionGuardada) {

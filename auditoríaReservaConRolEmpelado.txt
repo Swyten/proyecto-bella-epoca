@@ -1,0 +1,38 @@
+Results for URL: https://proyecto-bella-epoca.vercel.app/html/reserva.html
+
+ • Error: This element has insufficient contrast at this conformance level. Expected a contrast ratio of at least 7:1, but text in this element has a contrast ratio of NaN:1.
+   ├── WCAG2AAA.Principle1.Guideline1_4.1_4_6.G17.Fail
+   ├── html > body > header > div > a > span:nth-child(1)
+   └── <span class="brand__monogram">BÉ</span>
+
+ • Error: This element has insufficient contrast at this conformance level. Expected a contrast ratio of at least 7:1, but text in this element has a contrast ratio of NaN:1.
+   ├── WCAG2AAA.Principle1.Guideline1_4.1_4_6.G17.Fail
+   ├── html > body > header > div > a > span:nth-child(2)
+   └── <span class="brand__name">Bella Época</span>
+
+ • Error: This element has insufficient contrast at this conformance level. Expected a contrast ratio of at least 7:1, but text in this element has a contrast ratio of NaN:1.
+   ├── WCAG2AAA.Principle1.Guideline1_4.1_4_6.G17.Fail
+   ├── html > body > header > div > nav > a
+   └── <a href="../index.html">Volver al inicio</a>
+
+ • Error: This element has insufficient contrast at this conformance level. Expected a contrast ratio of at least 7:1, but text in this element has a contrast ratio of NaN:1.
+   ├── WCAG2AAA.Principle1.Guideline1_4.1_4_6.G17.Fail
+   ├── #user-name-label
+   └── <span id="user-name-label">auditoria</span>
+
+ • Error: This link points to a named anchor "inicio" within the document, but no anchor exists with that name.
+   ├── WCAG2AAA.Principle2.Guideline2_4.2_4_1.G1,G123,G124.NoSuchID
+   ├── html > body > footer > div > div:nth-child(1) > div:nth-child(1) > a
+   └── <a class="brand" href="#inicio"><span class="brand__monogram">B...</a>
+
+ • Error: This link points to a named anchor "espacio" within the document, but no anchor exists with that name.
+   ├── WCAG2AAA.Principle2.Guideline2_4.2_4_1.G1,G123,G124.NoSuchID
+   ├── html > body > footer > div > div:nth-child(1) > nav > a:nth-child(4)
+   └── <a href="#espacio">El espacio</a>
+
+ • Error: This link points to a named anchor "contacto" within the document, but no anchor exists with that name.
+   ├── WCAG2AAA.Principle2.Guideline2_4.2_4_1.G1,G123,G124.NoSuchID
+   ├── html > body > footer > div > div:nth-child(1) > nav > a:nth-child(6)
+   └── <a href="#contacto">Contacto</a>
+
+7 Errors

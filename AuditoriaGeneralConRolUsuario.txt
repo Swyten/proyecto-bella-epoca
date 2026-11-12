@@ -1,0 +1,231 @@
+Running Pa11y on 4 URLs:
+ > https://proyecto-bella-epoca.vercel.app/ - 16 errors
+ > https://proyecto-bella-epoca.vercel.app/html/eventos.html - 8 errors
+ > https://proyecto-bella-epoca.vercel.app/html/galeria.html - 5 errors
+ > https://proyecto-bella-epoca.vercel.app/html/reserva.html - 7 errors
+
+Errors in https://proyecto-bella-epoca.vercel.app/:
+
+ • This element has insufficient contrast at this conformance level. Expected a contrast ratio of at least 7:1, but text in this element has a contrast ratio of NaN:1.
+
+   (html > body > header > div > a > span:nth-child(1))
+
+   <span class="brand__monogram">BÉ</span>
+
+ • This element has insufficient contrast at this conformance level. Expected a contrast ratio of at least 7:1, but text in this element has a contrast ratio of NaN:1.
+
+   (html > body > header > div > a > span:nth-child(2))
+
+   <span class="brand__name">Bella Época</span>
+
+ • This element has insufficient contrast at this conformance level. Expected a contrast ratio of at least 7:1, but text in this element has a contrast ratio of NaN:1.
+
+   (#site-nav > a:nth-child(1))
+
+   <a href="#eventos">Eventos</a>
+
+ • This element has insufficient contrast at this conformance level. Expected a contrast ratio of at least 7:1, but text in this element has a contrast ratio of NaN:1.
+
+   (#site-nav > a:nth-child(2))
+
+   <a href="#espacio">El espacio</a>
+
+ • This element has insufficient contrast at this conformance level. Expected a contrast ratio of at least 7:1, but text in this element has a contrast ratio of NaN:1.
+
+   (#site-nav > a:nth-child(3))
+
+   <a href="#vip">Reservados</a>
+
+ • This element has insufficient contrast at this conformance level. Expected a contrast ratio of at least 7:1, but text in this element has a contrast ratio of NaN:1.
+
+   (#site-nav > a:nth-child(4))
+
+   <a href="#galeria">Galería</a>
+
+ • This element has insufficient contrast at this conformance level. Expected a contrast ratio of at least 7:1, but text in this element has a contrast ratio of NaN:1.
+
+   (#site-nav > a:nth-child(5))
+
+   <a href="#resenas">Reseñas</a>
+
+ • This element has insufficient contrast at this conformance level. Expected a contrast ratio of at least 7:1, but text in this element has a contrast ratio of NaN:1.
+
+   (#site-nav > a:nth-child(6))
+
+   <a href="#contacto">Contacto</a>
+
+ • This element has insufficient contrast at this conformance level. Expected a contrast ratio of at least 7:1, but text in this element has a contrast ratio of NaN:1.
+
+   (#btn-open-login)
+
+   <button class="btn btn--outline btn--small" id="btn-open-login">Iniciar Sesión</button>
+
+ • This element has insufficient contrast at this conformance level. Expected a contrast ratio of at least 7:1, but text in this element has a contrast ratio of NaN:1.
+
+   (#inicio > div:nth-child(2) > div > a:nth-child(2))
+
+   <a class="btn btn--outline" href="html/eventos.html">Consultar eventos ...</a>
+
+ • This element has insufficient contrast at this conformance level. Expected a contrast ratio of at least 7:1, but text in this element has a contrast ratio of NaN:1.
+
+   (#eventos > div > div:nth-child(2) > article:nth-child(1) > div > a)
+
+   <a class="btn btn--outline btn--small" href="#contacto">Consultar</a>
+
+ • This element has insufficient contrast at this conformance level. Expected a contrast ratio of at least 7:1, but text in this element has a contrast ratio of NaN:1.
+
+   (#eventos > div > div:nth-child(2) > article:nth-child(2) > div > a)
+
+   <a class="btn btn--outline btn--small" href="#contacto">Consultar</a>
+
+ • This element has insufficient contrast at this conformance level. Expected a contrast ratio of at least 7:1, but text in this element has a contrast ratio of NaN:1.
+
+   (#eventos > div > div:nth-child(2) > article:nth-child(3) > div > a)
+
+   <a class="btn btn--outline btn--small" href="#contacto">Consultar</a>
+
+ • This element has insufficient contrast at this conformance level. Expected a contrast ratio of at least 7:1, but text in this element has a contrast ratio of NaN:1.
+
+   (#reviews-container > figure > div > div > span:nth-child(3))
+
+   <span style="color: rgba(255,255,255,0.2)">★</span>
+
+ • This element has insufficient contrast at this conformance level. Expected a contrast ratio of at least 7:1, but text in this element has a contrast ratio of NaN:1.
+
+   (#reviews-container > figure > div > div > span:nth-child(4))
+
+   <span style="color: rgba(255,255,255,0.2)">★</span>
+
+ • This element has insufficient contrast at this conformance level. Expected a contrast ratio of at least 7:1, but text in this element has a contrast ratio of NaN:1.
+
+   (#reviews-container > figure > div > div > span:nth-child(5))
+
+   <span style="color: rgba(255,255,255,0.2)">★</span>
+
+Errors in https://proyecto-bella-epoca.vercel.app/html/eventos.html:
+
+ • This element has insufficient contrast at this conformance level. Expected a contrast ratio of at least 7:1, but text in this element has a contrast ratio of NaN:1.
+
+   (html > body > header > div > a > span:nth-child(1))
+
+   <span class="brand__monogram">BÉ</span>
+
+ • This element has insufficient contrast at this conformance level. Expected a contrast ratio of at least 7:1, but text in this element has a contrast ratio of NaN:1.
+
+   (html > body > header > div > a > span:nth-child(2))
+
+   <span class="brand__name">Bella Época</span>
+
+ • This element has insufficient contrast at this conformance level. Expected a contrast ratio of at least 7:1, but text in this element has a contrast ratio of NaN:1.
+
+   (html > body > header > div > nav > a:nth-child(1))
+
+   <a href="../index.html">Inicio</a>
+
+ • This element has insufficient contrast at this conformance level. Expected a contrast ratio of at least 7:1, but text in this element has a contrast ratio of NaN:1.
+
+   (html > body > header > div > nav > a:nth-child(2))
+
+   <a href="reserva.html">Reservar mesa</a>
+
+ • This element has insufficient contrast at this conformance level. Expected a contrast ratio of at least 7:1, but text in this element has a contrast ratio of NaN:1.
+
+   (#btn-open-login)
+
+   <button class="btn btn--outline btn--small" id="btn-open-login">Iniciar Sesión</button>
+
+ • This link points to a named anchor "inicio" within the document, but no anchor exists with that name.
+
+   (html > body > footer > div > div:nth-child(1) > div:nth-child(1) > a)
+
+   <a class="brand" href="#inicio"><span class="brand__monogram">B...</a>
+
+ • This link points to a named anchor "espacio" within the document, but no anchor exists with that name.
+
+   (html > body > footer > div > div:nth-child(1) > nav > a:nth-child(4))
+
+   <a href="#espacio">El espacio</a>
+
+ • This link points to a named anchor "contacto" within the document, but no anchor exists with that name.
+
+   (html > body > footer > div > div:nth-child(1) > nav > a:nth-child(6))
+
+   <a href="#contacto">Contacto</a>
+
+Errors in https://proyecto-bella-epoca.vercel.app/html/galeria.html:
+
+ • This element has insufficient contrast at this conformance level. Expected a contrast ratio of at least 7:1, but text in this element has a contrast ratio of NaN:1.
+
+   (html > body > header > div > a > span:nth-child(1))
+
+   <span class="brand__monogram">BÉ</span>
+
+ • This element has insufficient contrast at this conformance level. Expected a contrast ratio of at least 7:1, but text in this element has a contrast ratio of NaN:1.
+
+   (html > body > header > div > a > span:nth-child(2))
+
+   <span class="brand__name">Bella Época</span>
+
+ • This element has insufficient contrast at this conformance level. Expected a contrast ratio of at least 7:1, but text in this element has a contrast ratio of NaN:1.
+
+   (html > body > header > div > nav > a:nth-child(1))
+
+   <a href="../index.html">Inicio</a>
+
+ • This element has insufficient contrast at this conformance level. Expected a contrast ratio of at least 7:1, but text in this element has a contrast ratio of NaN:1.
+
+   (html > body > header > div > nav > a:nth-child(2))
+
+   <a href="reserva.html">Reservar mesa</a>
+
+ • This element has insufficient contrast at this conformance level. Expected a contrast ratio of at least 7:1, but text in this element has a contrast ratio of NaN:1.
+
+   (#btn-open-login)
+
+   <button class="btn btn--outline btn--small" id="btn-open-login">Iniciar Sesión</button>
+
+Errors in https://proyecto-bella-epoca.vercel.app/html/reserva.html:
+
+ • This element has insufficient contrast at this conformance level. Expected a contrast ratio of at least 7:1, but text in this element has a contrast ratio of NaN:1.
+
+   (html > body > header > div > a > span:nth-child(1))
+
+   <span class="brand__monogram">BÉ</span>
+
+ • This element has insufficient contrast at this conformance level. Expected a contrast ratio of at least 7:1, but text in this element has a contrast ratio of NaN:1.
+
+   (html > body > header > div > a > span:nth-child(2))
+
+   <span class="brand__name">Bella Época</span>
+
+ • This element has insufficient contrast at this conformance level. Expected a contrast ratio of at least 7:1, but text in this element has a contrast ratio of NaN:1.
+
+   (html > body > header > div > nav > a)
+
+   <a href="../index.html">Volver al inicio</a>
+
+ • This element has insufficient contrast at this conformance level. Expected a contrast ratio of at least 7:1, but text in this element has a contrast ratio of NaN:1.
+
+   (#user-name-label)
+
+   <span id="user-name-label">auditoria</span>
+
+ • This link points to a named anchor "inicio" within the document, but no anchor exists with that name.
+
+   (html > body > footer > div > div:nth-child(1) > div:nth-child(1) > a)
+
+   <a class="brand" href="#inicio"><span class="brand__monogram">B...</a>
+
+ • This link points to a named anchor "espacio" within the document, but no anchor exists with that name.
+
+   (html > body > footer > div > div:nth-child(1) > nav > a:nth-child(4))
+
+   <a href="#espacio">El espacio</a>
+
+ • This link points to a named anchor "contacto" within the document, but no anchor exists with that name.
+
+   (html > body > footer > div > div:nth-child(1) > nav > a:nth-child(6))
+
+   <a href="#contacto">Contacto</a>
+
+✘ 0/4 URLs passed
