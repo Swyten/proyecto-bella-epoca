@@ -11,10 +11,7 @@
     <meta name="twitter:card" content="summary_large_image" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&amp;family=Instrument+Serif&amp;display=swap"
-      rel="stylesheet"
-    />
+    <link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&amp;family=Instrument+Serif&amp;display=swap" rel="stylesheet" />
     <link rel="icon" type="image/png" href="../img/favicon.png" />
     <link rel="stylesheet" href="../css/styles.css" />
     <script src="../js/eventos.js" defer></script>
@@ -23,26 +20,22 @@
     <a class="skip-link" href="#contenido">Saltar al contenido</a>
     <header class="site-header">
       <div class="container site-header__inner">
-        <a class="brand" href="../index.html" aria-label="Bella Época, inicio"
-          ><span class="brand__monogram">BÉ</span
-          ><span class="brand__name">Bella Época</span></a
-        >
-        <nav class="site-nav" aria-label="Principal">
+        <a class="brand" href="../index.html" aria-label="Bella Época, inicio">
+          <span class="brand__monogram">BÉ</span><span class="brand__name">Bella Época</span>
+        </a>
+        <nav class="site-nav" aria-label="Principal" id="site-nav">
           <a href="../index.html">Inicio</a>
           <a href="reserva.html">Reservar mesa</a>
-          <!-- Botón de Iniciar Sesión (redirige al inicio si no hay sesión) -->
           <button class="btn btn--outline btn--small" id="btn-open-login">Iniciar Sesión</button>
-
-          <!-- Desplegable de usuario para subpáginas -->
+          
           <div id="user-profile-wrapper" style="position: relative; display: inline-block;" hidden>
-            <button class="btn btn--outline btn--small" id="btn-user-profile" type="button" aria-expanded="false" style="display: flex; align-items: center; gap: 0.4rem;">
+            <button class="btn btn--outline btn--small" id="btn-user-profile" type="button" aria-expanded="false">
               <span id="user-name-label">Usuario</span>
               <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m6 9 6 6 6-6"/></svg>
             </button>
-            
-            <div id="user-dropdown-menu" hidden style="position: absolute; right: 0; top: calc(100% + 0.5rem); background: rgba(34, 34, 34, 0.95); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); border: 1px solid rgba(212, 175, 55, 0.3); border-radius: 8px; padding: 0.6rem; min-width: 180px; box-shadow: 0 8px 32px rgba(0,0,0,0.6); z-index: 1000; text-align: left;">
-              <div id="user-email-info" style="font-size: 0.8rem; color: #d4af37; padding: 0.3rem 0.5rem 0.6rem; border-bottom: 1px solid rgba(255,255,255,0.1); margin-bottom: 0.5rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;"></div>
-              <button type="button" id="btn-logout" class="btn btn--outline btn--small" style="width: 100%; justify-content: center; color: #ff6b6b; border-color: rgba(255,107,107,0.4); background: rgba(255,107,107,0.05);">Cerrar Sesión</button>
+            <div id="user-dropdown-menu" class="ticket-option" hidden style="position: absolute; right: 0; top: calc(100% + var(--space-2)); z-index: 1000; min-width: 180px;">
+              <p id="user-email-info" class="eyebrow" style="margin-bottom: var(--space-3); word-break: break-all;"></p>
+              <button type="button" id="btn-logout" class="btn btn--ghost btn--small" style="width: 100%;">Cerrar Sesión</button>
             </div>
           </div>
         </nav>
@@ -70,25 +63,22 @@
           </div>
 
           <div class="agenda-list" id="agenda-panel" role="tabpanel" aria-labelledby="tab-actuales"></div>
-
           <p class="form-hint events__footer">Programación de ejemplo pendiente de confirmar por Bella Época.</p>
         </div>
       </section>
     </main>
 
-    <!-- Ventana de compra de entradas -->
     <dialog class="dialog" id="ticket-dialog" aria-labelledby="ticket-title">
-      <form method="dialog" id="ticket-form" novalidate>
+      <form method="dialog" id="ticket-form" class="form" novalidate>
         <div class="dialog__header">
           <div>
             <p class="eyebrow" id="ticket-type">Entrada</p>
             <h2 id="ticket-title">Evento</h2>
           </div>
-          <button class="btn btn--ghost btn--icon" type="button" data-close aria-label="Cerrar">✕</button>
+          <button class="btn btn--ghost btn--icon" type="button" data-close aria-label="Cerrar"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="m6 6 12 12M18 6 6 18" /></svg></button>
         </div>
-
         <div data-ticket-step="1">
-          <dl class="booking-summary">
+          <dl class="booking-summary" style="margin-bottom: var(--space-5);">
             <div>Fecha: <strong id="ticket-date"></strong></div>
             <div>Precio por entrada: <strong id="ticket-price"></strong></div>
           </dl>
@@ -115,12 +105,11 @@
             <button class="btn btn--primary" type="submit" id="ticket-submit" disabled>Comprar entradas</button>
           </div>
         </div>
-
         <div data-ticket-step="2" hidden>
           <div class="alert alert--success" role="status">
             <p id="ticket-confirm"></p>
           </div>
-          <p class="form-hint">Pago todavía no conectado: esta compra no se ha cobrado.</p>
+          <p class="form-hint" style="margin-top: var(--space-4);">Pago todavía no conectado: esta compra no se ha cobrado.</p>
           <div class="wizard-actions">
             <button class="btn btn--primary" type="button" data-close>Cerrar</button>
           </div>
@@ -132,59 +121,22 @@
       <div class="container">
         <div class="site-footer__grid">
           <div class="site-footer__brand">
-            <a class="brand" href="#inicio"
-              ><span class="brand__monogram">BÉ</span
-              ><span class="brand__name">Bella Época</span></a
-            >
+            <a class="brand" href="../index.html#inicio">
+              <span class="brand__monogram">BÉ</span><span class="brand__name">Bella Época</span>
+            </a>
             <p>La noche, en su época más bella.</p>
           </div>
           <nav class="site-footer__links" aria-label="Pie de página">
             <p class="eyebrow">Explora</p>
             <a href="../index.html">Inicio</a>
-            <a href="./eventos">Eventos</a>
-            <a href="#espacio">El espacio</a>
+            <a href="./eventos.html">Eventos</a>
+            <a href="../index.html#espacio">El espacio</a>
             <a href="./reserva.html">Reservados</a>
-            <a href="#contacto">Contacto</a>
+            <a href="../index.html#contacto">Contacto</a>
           </nav>
-          <div class="site-footer__newsletter">
-            <label class="form-label" for="newsletter-email"
-              >Noticias de Bella Época</label
-            >
-            <div class="newsletter-form">
-              <input
-                class="form-input"
-                id="newsletter-email"
-                type="email"
-                placeholder="Tu correo electrónico"
-                disabled
-                aria-describedby="newsletter-status"
-              /><button
-                class="btn btn--primary btn--icon"
-                type="button"
-                disabled
-                aria-label="Suscribirse"
-              >
-                <svg
-                  width="20"
-                  height="20"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  stroke-width="1.5"
-                  aria-hidden="true"
-                >
-                  <path d="M5 12h14m-5-5 5 5-5 5" />
-                </svg>
-              </button>
-            </div>
-            <p class="form-hint" id="newsletter-status">
-              Suscripciones todavía no disponibles.
-            </p>
-          </div>
         </div>
         <div class="site-footer__bottom">
-          <span>© 2026 Bella Época</span
-          ><span>Información legal pendiente de aportar.</span>
+          <span>© 2026 Bella Época</span><span>Información legal pendiente de aportar.</span>
         </div>
       </div>
     </footer>

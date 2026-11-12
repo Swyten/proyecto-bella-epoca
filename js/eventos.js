@@ -10,6 +10,7 @@
     const userEmailInfo = document.getElementById("user-email-info");
     const userDropdownMenu = document.getElementById("user-dropdown-menu");
     const btnLogout = document.getElementById("btn-logout");
+    const nav = document.getElementById("site-nav");
 
     const sesionGuardada = sessionStorage.getItem("usuario");
 
@@ -20,6 +21,14 @@
 
       if (userNameLabel) userNameLabel.textContent = usuario.email.split('@')[0];
       if (userEmailInfo) userEmailInfo.textContent = usuario.email;
+
+      // Si es administrador o empleado, añadimos el enlace de "Gestión de Reservas" heredando estilos de .site-nav
+      if (usuario.rol === 'empleado' || usuario.rol === 'administrador') {
+        const enlaceGestion = document.createElement("a");
+        enlaceGestion.href = "gestion-mesas.html";
+        enlaceGestion.textContent = "Gestión de Mesas";
+        nav.insertBefore(enlaceGestion, userWrapper);
+      }
 
       btnUserProfile?.addEventListener("click", (e) => {
         e.stopPropagation();
@@ -50,37 +59,6 @@
     }
   });
 
-  document.addEventListener("DOMContentLoaded", () => {
-  const btnOpenLogin = document.getElementById("btn-open-login");
-  const nav = document.getElementById("site-nav");
-  const sesionGuardada = sessionStorage.getItem("usuario");
-
-  if (sesionGuardada && btnOpenLogin) {
-    const usuario = JSON.parse(sesionGuardada);
-    
-    // Cambiar el botón de "Iniciar Sesión" por el correo/nombre del usuario
-    btnOpenLogin.textContent = usuario.email.split('@')[0]; // Muestra la parte inicial del correo
-    btnOpenLogin.id = "btn-user-profile"; // Cambiamos el ID para no disparar el modal
-    
-    // Función rápida para cerrar sesión al hacer clic en su nombre
-    btnOpenLogin.addEventListener("click", (e) => {
-      e.preventDefault();
-      if (confirm("¿Deseas cerrar sesión?")) {
-        sessionStorage.removeItem("usuario");
-        window.location.reload();
-      }
-    });
-
-      // Si es administrador o empleado, añadimos el enlace de "Gestión de Reservas"
-      if (usuario.rol === 'empleado' || usuario.rol === 'administrador') {
-        const enlaceGestion = document.createElement("a");
-        enlaceGestion.href = "html/gestion-mesas.html"; // Nueva página que crearás
-        enlaceGestion.textContent = "Gestión de Mesas";
-        enlaceGestion.style.color = "#d4af37"; // Destacarlo visualmente (dorado)
-        nav.insertBefore(enlaceGestion, btnOpenLogin);
-      }
-    }
-  });
   // --- TRANSICIONES INSTANTÁNEAS DE ENTRADA ---
   document.addEventListener("DOMContentLoaded", () => {
     if (sessionStorage.getItem("animacion-volver") === "true") {
@@ -103,7 +81,6 @@
   });
   // -----------------------------------------------
 
-  // Variable vacía que se llenará con los datos de Neon
   let EVENTOS = [];
 
   const VENTAJAS = {
@@ -128,9 +105,8 @@
   const tabs = document.querySelectorAll("[data-filter]");
   if (!panel) return;
 
-  // Obtener el rol actual
-const sesion = JSON.parse(sessionStorage.getItem("usuario") || "{}");
-const esAdmin = sesion.rol === 'empleado' || sesion.rol === 'administrador';
+  const sesion = JSON.parse(sessionStorage.getItem("usuario") || "{}");
+  const esAdmin = sesion.rol === 'empleado' || sesion.rol === 'administrador';
 
   function tarjeta(ev, i, tipo) {
     const pasado = tipo === "pasados";
@@ -140,15 +116,13 @@ const esAdmin = sesion.rol === 'empleado' || sesion.rol === 'administrador';
         ? `<button class="btn ${clase} btn--small" type="button" disabled>Finalizado</button>`
         : `<button class="btn ${clase} btn--small" type="button" data-buy="${i}" data-level="${nivel}">${texto}</button>`;
     
-    // Aseguramos que los precios se lean como números (a veces las BD los devuelven como texto)
     const precioGeneral = Number(ev.general);
     const precioVip = Number(ev.vip);
 
-    // Crear botones de administración si el usuario tiene permisos
     const controlesAdmin = esAdmin ? `
-      <div class="admin-controls" style="margin-top: 1rem; padding-top: 1rem; border-top: 1px solid rgba(255,255,255,0.1);">
+      <div style="margin-top: var(--space-4); padding-top: var(--space-4); border-top: 1px solid var(--border);">
         <button class="btn btn--outline btn--small" onclick="editarEvento(${ev.id})">Editar</button>
-        <button class="btn btn--outline btn--small" style="color: #ff6b6b; border-color: #ff6b6b;" onclick="borrarEvento(${ev.id})">Eliminar</button>
+        <button class="btn btn--outline btn--small" onclick="borrarEvento(${ev.id})">Eliminar</button>
       </div>
     ` : '';
 
@@ -263,26 +237,18 @@ const esAdmin = sesion.rol === 'empleado' || sesion.rol === 'administrador';
   form.querySelectorAll("[data-close]").forEach((b) => b.addEventListener("click", () => dialog.close()));
   dialog?.addEventListener("close", () => opener?.focus());
 
-  // --- CARGA DINÁMICA DESDE NEON ---
   async function cargarEventos() {
-    // Feedback visual mientras despierta la base de datos
-    panel.innerHTML = '<p class="agenda-empty" style="text-align: center; padding: 3rem 0;">Cargando agenda de eventos...</p>';
-    
+    panel.innerHTML = '<p class="agenda-empty">Cargando agenda de eventos...</p>';
     try {
       const respuesta = await fetch('/api/eventos');
       EVENTOS = await respuesta.json();
-
-      // Abre la pestaña indicada en la URL o "Esta semana" por defecto
       const inicial = location.hash.slice(1);
       pintar(["actuales", "proximos", "pasados"].includes(inicial) ? inicial : "actuales");
-      
     } catch (error) {
-      console.error("Error al cargar los eventos:", error);
-      panel.innerHTML = '<p class="agenda-empty" style="color: #ff6b6b; text-align: center;">No se ha podido conectar con la agenda.</p>';
+      panel.innerHTML = '<p class="agenda-empty form-error">No se ha podido conectar con la agenda.</p>';
       count.textContent = "0 eventos";
     }
   }
 
-  // Ejecutamos la petición inicial
   cargarEventos();
 })();

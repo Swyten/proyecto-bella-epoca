@@ -12,10 +12,8 @@
   const reviewTabs = document.querySelectorAll("[data-filter-review]");
   const reviewError = document.getElementById("review-error");
 
-  // Array dinámico que se llenará desde Neon
   let reseñasData = [];
 
-  // Función para cargar reseñas desde la base de datos
   async function cargarReseñas() {
     if (!reviewsContainer) return;
     reviewsContainer.innerHTML = '<p class="form-hint" style="grid-column: 1 / -1; text-align: center;">Cargando opiniones...</p>';
@@ -27,12 +25,10 @@
       const tabActiva = document.querySelector('[data-filter-review][aria-selected="true"]');
       pintarReseñas(tabActiva ? tabActiva.dataset.filterReview : "todas");
     } catch (error) {
-      reviewsContainer.innerHTML = '<p class="form-hint" style="grid-column: 1 / -1; text-align: center; color: #ff6b6b;">Error al cargar las reseñas.</p>';
+      reviewsContainer.innerHTML = '<p class="form-error" style="grid-column: 1 / -1; text-align: center;">Error al cargar las reseñas.</p>';
     }
   }
 
-  // Enviar reseña nueva a la base de datos
-  // Enviar reseña nueva a la base de datos (Único escuchador)
   reviewForm?.addEventListener("submit", async (e) => {
     e.preventDefault();
     
@@ -70,13 +66,13 @@
     }
   });
 
-  // Carga inicial al entrar a la página
   cargarReseñas();
 
+  // Genera estrellas referenciando las variables CSS de estilos nativos
   const generarEstrellas = (num) => {
     let estrellasHTML = '';
     for (let i = 1; i <= 5; i++) {
-      estrellasHTML += `<span style="color: ${i <= num ? '#d4af37' : 'rgba(255,255,255,0.2)'}">★</span>`;
+      estrellasHTML += `<span style="color: ${i <= num ? 'var(--primary)' : 'var(--muted)'}">★</span>`;
     }
     return estrellasHTML;
   };
@@ -102,15 +98,13 @@
       const fechaFormateada = fechaObj.toLocaleDateString('es-ES', { day: 'numeric', month: 'short', year: 'numeric' });
       
       return `
-        <figure class="review" style="display: flex; flex-direction: column; gap: 1rem;">
+        <figure class="review" style="display: flex; flex-direction: column; gap: var(--space-4);">
           <div style="display: flex; justify-content: space-between; align-items: center;">
-            <p class="eyebrow" style="margin: 0; color: #d4af37;">${res.nombre}</p>
-            <div style="font-size: 1.1rem; letter-spacing: 2px;">${generarEstrellas(res.estrellas)}</div>
+            <p class="eyebrow" style="margin: 0;">${res.nombre}</p>
+            <div class="review__stars" style="margin: 0; font-size: 1.1rem; letter-spacing: 2px;">${generarEstrellas(res.estrellas)}</div>
           </div>
-          <blockquote style="margin: 0; flex-grow: 1;">"${res.comentario}"</blockquote>
-          <figcaption style="margin: 0; font-size: 0.8rem; opacity: 0.6; text-align: right;">
-            ${fechaFormateada}
-          </figcaption>
+          <blockquote class="body-copy" style="flex-grow: 1;">"${res.comentario}"</blockquote>
+          <figcaption style="margin: 0; text-align: right;">${fechaFormateada}</figcaption>
         </figure>
       `;
     }).join("");
@@ -135,7 +129,7 @@
     }
     reviewForm.reset();
     reviewRatingInput.value = "";
-    Array.from(starContainer.children).forEach(s => s.style.color = 'rgba(255,255,255,0.2)');
+    Array.from(starContainer.children).forEach(s => s.style.color = 'var(--muted)');
     if (reviewError) reviewError.hidden = true;
     reviewModal?.showModal();
   });
@@ -146,7 +140,7 @@
         const valor = e.target.dataset.value;
         reviewRatingInput.value = valor;
         Array.from(starContainer.children).forEach(star => {
-          star.style.color = star.dataset.value <= valor ? '#d4af37' : 'rgba(255,255,255,0.2)';
+          star.style.color = star.dataset.value <= valor ? 'var(--primary)' : 'var(--muted)';
         });
       }
     });
@@ -167,14 +161,12 @@
     if (sesionGuardada && userWrapper && btnOpenLogin) {
       const usuario = JSON.parse(sesionGuardada);
       
-      // Conmutar interfaz: ocultar botón login y mostrar perfil
       btnOpenLogin.hidden = true;
       userWrapper.hidden = false;
 
       if (userNameLabel) userNameLabel.textContent = usuario.email.split('@')[0];
       if (userEmailInfo) userEmailInfo.textContent = usuario.email;
 
-      // Desplegar / Ocultar menú al hacer clic en el botón de usuario
       btnUserProfile?.addEventListener("click", (e) => {
         e.stopPropagation();
         const estaAbierto = !userDropdownMenu.hidden;
@@ -182,7 +174,6 @@
         btnUserProfile.setAttribute("aria-expanded", String(!estaAbierto));
       });
 
-      // Cerrar desplegable si se hace clic fuera
       document.addEventListener("click", (e) => {
         if (!userWrapper.contains(e.target)) {
           if (userDropdownMenu) userDropdownMenu.hidden = true;
@@ -190,7 +181,6 @@
         }
       });
 
-      // Acción de Cerrar Sesión
       btnLogout?.addEventListener("click", () => {
         sessionStorage.removeItem("usuario");
         window.location.reload();

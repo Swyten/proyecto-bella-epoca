@@ -11,10 +11,7 @@
     <meta name="twitter:card" content="summary_large_image" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&amp;family=Instrument+Serif&amp;display=swap"
-      rel="stylesheet"
-    />
+    <link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&amp;family=Instrument+Serif&amp;display=swap" rel="stylesheet" />
     <link rel="icon" type="image/png" href="../img/favicon.png">
     <link rel="stylesheet" href="../css/styles.css" />
     <script src="../js/reserva.js" defer></script>
@@ -23,25 +20,21 @@
     <a class="skip-link" href="#contenido">Saltar al contenido</a>
     <header class="site-header">
       <div class="container site-header__inner">
-        <a class="brand" href="../index.html" aria-label="Bella Época, inicio"
-          ><span class="brand__monogram">BÉ</span
-          ><span class="brand__name">Bella Época</span></a
-        >
-        <nav class="site-nav" aria-label="Principal">
+        <a class="brand" href="../index.html" aria-label="Bella Época, inicio">
+          <span class="brand__monogram">BÉ</span><span class="brand__name">Bella Época</span>
+        </a>
+        <nav class="site-nav" aria-label="Principal" id="site-nav">
           <a href="../index.html">Volver al inicio</a>
-          <!-- Botón de Iniciar Sesión (redirige al inicio si no hay sesión) -->
           <button class="btn btn--outline btn--small" id="btn-open-login">Iniciar Sesión</button>
-
-          <!-- Desplegable de usuario para subpáginas -->
+          
           <div id="user-profile-wrapper" style="position: relative; display: inline-block;" hidden>
-            <button class="btn btn--outline btn--small" id="btn-user-profile" type="button" aria-expanded="false" style="display: flex; align-items: center; gap: 0.4rem;">
+            <button class="btn btn--outline btn--small" id="btn-user-profile" type="button" aria-expanded="false">
               <span id="user-name-label">Usuario</span>
               <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m6 9 6 6 6-6"/></svg>
             </button>
-            
-            <div id="user-dropdown-menu" hidden style="position: absolute; right: 0; top: calc(100% + 0.5rem); background: rgba(34, 34, 34, 0.95); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); border: 1px solid rgba(212, 175, 55, 0.3); border-radius: 8px; padding: 0.6rem; min-width: 180px; box-shadow: 0 8px 32px rgba(0,0,0,0.6); z-index: 1000; text-align: left;">
-              <div id="user-email-info" style="font-size: 0.8rem; color: #d4af37; padding: 0.3rem 0.5rem 0.6rem; border-bottom: 1px solid rgba(255,255,255,0.1); margin-bottom: 0.5rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;"></div>
-              <button type="button" id="btn-logout" class="btn btn--outline btn--small" style="width: 100%; justify-content: center; color: #ff6b6b; border-color: rgba(255,107,107,0.4); background: rgba(255,107,107,0.05);">Cerrar Sesión</button>
+            <div id="user-dropdown-menu" class="ticket-option" hidden style="position: absolute; right: 0; top: calc(100% + var(--space-2)); z-index: 1000; min-width: 180px;">
+              <p id="user-email-info" class="eyebrow" style="margin-bottom: var(--space-3); word-break: break-all;"></p>
+              <button type="button" id="btn-logout" class="btn btn--ghost btn--small" style="width: 100%;">Cerrar Sesión</button>
             </div>
           </div>
         </nav>
@@ -64,18 +57,13 @@
               <li data-step-label="1" aria-current="step">1 · Fecha y Mesa</li>
               <li data-step-label="2">2 · Tus datos</li>
             </ol>
-
-            <!-- PASO 1: elegir fecha y mesa -->
             <fieldset class="wizard-panel" data-step="1">
-              <legend class="form-label">Elige la fecha y tu mesa</legend>
-              
-              <!-- NUEVO: Selector de Fecha -->
-              <div class="form-field" style="margin-bottom: 2rem;">
+              <legend class="form-label sr-only">Elige la fecha y tu mesa</legend>
+              <div class="form-field" style="margin-bottom: var(--space-6);">
                 <label class="form-label" for="fecha-reserva">Fecha de la reserva *</label>
                 <input class="form-input" id="fecha-reserva" name="fecha_reserva" type="date" required />
-                <p class="form-hint" style="margin-top: 0.4rem;">Abrimos de miércoles a domingo. Disponible con hasta 1 mes de antelación.</p>
+                <p class="form-hint" style="margin-top: var(--space-2);">Abrimos de miércoles a domingo. Disponible con hasta 1 mes de antelación.</p>
               </div>
-
               <div class="table-wrap">
                 <table class="data-table">
                   <thead>
@@ -89,7 +77,6 @@
                     </tr>
                   </thead>
                   <tbody id="tabla-mesas">
-                    <!-- Se llena dinámicamente con JS -->
                   </tbody>
                 </table>
               </div>
@@ -100,46 +87,35 @@
               </div>
             </fieldset>
 
-            <!-- PASO 2: tus datos y tipo de reserva -->
             <fieldset class="wizard-panel" data-step="2" hidden>
-              <legend class="form-label">Tus datos</legend>
-              <p class="booking-summary">Mesa elegida: <strong id="summary-mesa">—</strong></p>
-              
+              <legend class="form-label sr-only">Tus datos</legend>
+              <p class="booking-summary" style="margin-bottom: var(--space-4);">Mesa elegida: <strong id="summary-mesa">—</strong></p>
               <div class="form-field">
                 <label class="form-label" for="nombre">Nombre de la reserva *</label>
-                <input class="form-input" id="nombre" name="nombre" type="text" autocomplete="name"
-                  required minlength="2" maxlength="60" placeholder="Tu nombre"
-                  aria-describedby="nombre-error" />
+                <input class="form-input" id="nombre" name="nombre" type="text" autocomplete="name" required minlength="2" maxlength="60" placeholder="Tu nombre" aria-describedby="nombre-error" />
                 <p class="form-error" id="nombre-error" hidden>Introduce un nombre para realizar la reserva.</p>
               </div>
-
-              <!-- NUEVO: Tipo de Reserva -->
               <div class="form-field">
                 <label class="form-label" for="tipo-reserva">Tipo de reserva *</label>
-                <select class="form-input" id="tipo-reserva" name="tipo_reserva" required>
+                <select class="form-select" id="tipo-reserva" name="tipo_reserva" required>
                   <option value="generica" selected>Reserva genérica</option>
                   <option value="cumpleanos">Celebración de cumpleaños</option>
                 </select>
               </div>
-
-              <!-- NUEVO: Nombre del cumpleañero (Oculto por defecto) -->
               <div class="form-field" id="capa-cumpleanero" hidden>
                 <label class="form-label" for="nombre-cumpleanero">Nombre del cumpleañero/a *</label>
-                <input class="form-input" id="nombre-cumpleanero" name="nombre_cumpleanero" type="text" 
-                  placeholder="Ej. Marta" maxlength="60" />
-                <p class="form-hint" style="margin-top: 0.4rem;">Para felicitarle de forma especial durante la noche en la discoteca.</p>
+                <input class="form-input" id="nombre-cumpleanero" name="nombre_cumpleanero" type="text" placeholder="Ej. Marta" maxlength="60" />
+                <p class="form-hint" style="margin-top: var(--space-2);">Para felicitarle de forma especial durante la noche en la discoteca.</p>
               </div>
-
               <div class="wizard-actions">
                 <button class="btn btn--outline" type="button" id="btn-back">Atrás</button>
                 <button class="btn btn--primary" type="submit" id="btn-submit" disabled>Realizar reserva</button>
               </div>
             </fieldset>
-
-            <!-- Confirmación (solo visual: no se envían datos) -->
+            
             <div class="wizard-panel" data-step="3" hidden role="status" tabindex="-1">
               <p class="eyebrow">Solicitud registrada</p>
-              <h2 id="confirm-title">¡Gracias!</h2>
+              <h2 id="confirm-title" style="margin-bottom: var(--space-4);">¡Gracias!</h2>
               <p class="body-copy" id="confirm-text"></p>
               <div class="wizard-actions">
                 <a class="btn btn--primary" href="../index.html">Volver al inicio</a>
@@ -154,59 +130,22 @@
       <div class="container">
         <div class="site-footer__grid">
           <div class="site-footer__brand">
-            <a class="brand" href="#inicio"
-              ><span class="brand__monogram">BÉ</span
-              ><span class="brand__name">Bella Época</span></a
-            >
+            <a class="brand" href="../index.html#inicio">
+              <span class="brand__monogram">BÉ</span><span class="brand__name">Bella Época</span>
+            </a>
             <p>La noche, en su época más bella.</p>
           </div>
           <nav class="site-footer__links" aria-label="Pie de página">
             <p class="eyebrow">Explora</p>
             <a href="../index.html">Inicio</a>
-            <a href="./eventos">Eventos</a>
-            <a href="#espacio">El espacio</a>
+            <a href="./eventos.html">Eventos</a>
+            <a href="../index.html#espacio">El espacio</a>
             <a href="./reserva.html">Reservados</a>
-            <a href="#contacto">Contacto</a>
+            <a href="../index.html#contacto">Contacto</a>
           </nav>
-          <div class="site-footer__newsletter">
-            <label class="form-label" for="newsletter-email"
-              >Noticias de Bella Época</label
-            >
-            <div class="newsletter-form">
-              <input
-                class="form-input"
-                id="newsletter-email"
-                type="email"
-                placeholder="Tu correo electrónico"
-                disabled
-                aria-describedby="newsletter-status"
-              /><button
-                class="btn btn--primary btn--icon"
-                type="button"
-                disabled
-                aria-label="Suscribirse"
-              >
-                <svg
-                  width="20"
-                  height="20"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  stroke-width="1.5"
-                  aria-hidden="true"
-                >
-                  <path d="M5 12h14m-5-5 5 5-5 5" />
-                </svg>
-              </button>
-            </div>
-            <p class="form-hint" id="newsletter-status">
-              Suscripciones todavía no disponibles.
-            </p>
-          </div>
         </div>
         <div class="site-footer__bottom">
-          <span>© 2026 Bella Época</span
-          ><span>Información legal pendiente de aportar.</span>
+          <span>© 2026 Bella Época</span><span>Información legal pendiente de aportar.</span>
         </div>
       </div>
     </footer>

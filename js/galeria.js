@@ -10,6 +10,7 @@
     const userEmailInfo = document.getElementById("user-email-info");
     const userDropdownMenu = document.getElementById("user-dropdown-menu");
     const btnLogout = document.getElementById("btn-logout");
+    const nav = document.getElementById("site-nav");
 
     const sesionGuardada = sessionStorage.getItem("usuario");
 
@@ -20,6 +21,13 @@
 
       if (userNameLabel) userNameLabel.textContent = usuario.email.split('@')[0];
       if (userEmailInfo) userEmailInfo.textContent = usuario.email;
+
+      if (usuario.rol === 'empleado' || usuario.rol === 'administrador') {
+        const enlaceGestion = document.createElement("a");
+        enlaceGestion.href = "gestion-mesas.html";
+        enlaceGestion.textContent = "Gestión de Mesas";
+        nav.insertBefore(enlaceGestion, userWrapper);
+      }
 
       btnUserProfile?.addEventListener("click", (e) => {
         e.stopPropagation();
@@ -50,41 +58,7 @@
     }
   });
 
-  document.addEventListener("DOMContentLoaded", () => {
-  const btnOpenLogin = document.getElementById("btn-open-login");
-  const nav = document.getElementById("site-nav");
-  const sesionGuardada = sessionStorage.getItem("usuario");
-
-  if (sesionGuardada && btnOpenLogin) {
-    const usuario = JSON.parse(sesionGuardada);
-    
-    // Cambiar el botón de "Iniciar Sesión" por el correo/nombre del usuario
-    btnOpenLogin.textContent = usuario.email.split('@')[0]; // Muestra la parte inicial del correo
-    btnOpenLogin.id = "btn-user-profile"; // Cambiamos el ID para no disparar el modal
-    
-    // Función rápida para cerrar sesión al hacer clic en su nombre
-    btnOpenLogin.addEventListener("click", (e) => {
-      e.preventDefault();
-      if (confirm("¿Deseas cerrar sesión?")) {
-        sessionStorage.removeItem("usuario");
-        window.location.reload();
-      }
-    });
-
-      // Si es administrador o empleado, añadimos el enlace de "Gestión de Reservas"
-      if (usuario.rol === 'empleado' || usuario.rol === 'administrador') {
-        const enlaceGestion = document.createElement("a");
-        enlaceGestion.href = "html/gestion-mesas.html"; // Nueva página que crearás
-        enlaceGestion.textContent = "Gestión de Mesas";
-        enlaceGestion.style.color = "#d4af37"; // Destacarlo visualmente (dorado)
-        nav.insertBefore(enlaceGestion, btnOpenLogin);
-      }
-    }
-  });
-
   // --- TRANSICIONES INSTANTÁNEAS DE ENTRADA ---
-
-  // 1. Animación fluida al cargar la página (sin esperas previas)
   document.addEventListener("DOMContentLoaded", () => {
     if (sessionStorage.getItem("animacion-volver") === "true") {
       document.body.style.animation = "slide-in-left 0.4s cubic-bezier(0.25, 0.8, 0.25, 1) forwards";
@@ -94,25 +68,17 @@
     }
   });
 
-  // 2. Registrar hacia dónde vamos, pero sin bloquear el salto nativo
   document.querySelectorAll("a").forEach((enlace) => {
     enlace.addEventListener("click", () => {
       const href = enlace.getAttribute("href");
       if (!href || href.startsWith("#")) return;
 
-      // Guardamos el aviso para que la siguiente página sepa de dónde viene
       if (href.includes("index.html")) {
         sessionStorage.setItem("animacion-volver", "true");
       }
     });
   });
-  // -----------------------------------------------
 
-  // Datos de la galería: sustituir por las fotografías reales del local.
-  // img: ruta del archivo (relativa a html/, por eso ../img/...).
-  // cat: sala | reservados | musica (debe coincidir con los filtros).
-  // tamano: "" (normal), "tall" (doble de alto) o "wide" (doble de ancho).
-  // pos (opcional): recorte de la imagen, p. ej. "center 30%".
   const GALERIA = [
     { img: "../img/bella-epoca-sala.jpg", alt: "Salón principal bajo la lámpara de cristal", cat: "sala", tamano: "wide" },
     { img: "../img/bella-epoca-vip.jpg", alt: "Cócteles en la zona reservada", cat: "reservados", tamano: "tall" },
@@ -133,7 +99,6 @@
   const tabs = [...document.querySelectorAll("[data-filter]")];
   if (!grid) return;
 
-  // --- VISOR DE IMÁGENES ---
   const dialog = document.getElementById("gallery-dialog");
   const enlarged = document.getElementById("gallery-image");
   const caption = document.getElementById("gallery-caption");
@@ -151,7 +116,6 @@
     caption.textContent = `${image.alt} — ${current + 1} / ${imagenes.length}`;
   }
 
-  // --- RENDERIZADO Y FILTROS ---
   function render(filtro) {
     const lista = filtro === "todas" ? GALERIA : GALERIA.filter((foto) => foto.cat === filtro);
     grid.innerHTML = lista
@@ -178,7 +142,6 @@
 
   tabs.forEach((t) => t.addEventListener("click", () => render(t.dataset.filter)));
 
-  // --- APERTURA DEL VISOR ---
   grid.addEventListener("click", (event) => {
     const link = event.target.closest(".gallery-item");
     if (!link || !(dialog instanceof HTMLDialogElement) || typeof dialog.showModal !== "function") return;
@@ -222,7 +185,6 @@
   });
   dialog?.addEventListener("close", () => opener?.focus());
 
-  // Abre el filtro indicado en la URL (galeria.html#musica) o "Todas".
   const inicial = location.hash.slice(1);
   render(["todas", "sala", "reservados", "musica"].includes(inicial) ? inicial : "todas");
 })();
