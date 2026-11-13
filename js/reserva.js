@@ -110,8 +110,8 @@
       const fechaSeleccionada = new Date(e.target.value);
       const diaSemana = fechaSeleccionada.getDay();
 
-      if (diaSemana === 1 || diaSemana === 2) {
-        alert("La discoteca solo abre de miércoles a domingo. Por favor, elige otra fecha.");
+      if (diaSemana === 1 || diaSemana === 2 || diaSemana === 3) {
+        alert("La discoteca solo abre de Jueves a Domingo. Por favor, elige otra fecha.");
         e.target.value = "";
         tbody.innerHTML = '<tr><td colspan="6" style="text-align: center; padding: var(--space-6);">Selecciona una fecha válida.</td></tr>';
         if (next) next.disabled = true;
