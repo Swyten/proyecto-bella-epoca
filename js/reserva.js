@@ -2,8 +2,12 @@
 (() => {
   "use strict";
 
+  // =========================================================================
+  // 1. CONTROL DE ACCESO Y DETECCIÓN DE ROL
+  // =========================================================================
   const sesionGuardada = sessionStorage.getItem("usuario");
 
+  // Redirige a la portada si no existe sesión activa
   if (!sesionGuardada) {
     alert("Debes iniciar sesión para acceder al sistema de reservas.");
     window.location.href = "../index.html";
@@ -11,8 +15,12 @@
   }
 
   const sesion = JSON.parse(sesionGuardada);
+  /** Determina si la vista se muestra en modo gestión para personal del local */
   const esEmpleado = sesion.rol === 'empleado' || sesion.rol === 'administrador';
 
+  // =========================================================================
+  // 2. BARRA DE PERFIL DE USUARIO EN CABECERA
+  // =========================================================================
   document.addEventListener("DOMContentLoaded", () => {
     const btnOpenLogin = document.getElementById("btn-open-login");
     const userWrapper = document.getElementById("user-profile-wrapper");
@@ -28,6 +36,7 @@
     if (userNameLabel) userNameLabel.textContent = sesion.email.split('@')[0];
     if (userEmailInfo) userEmailInfo.textContent = sesion.email;
 
+    // Alterna visibilidad del menú desplegable del usuario
     btnUserProfile?.addEventListener("click", (e) => {
       e.stopPropagation();
       const estaAbierto = !userDropdownMenu.hidden;
@@ -35,6 +44,7 @@
       btnUserProfile.setAttribute("aria-expanded", String(!estaAbierto));
     });
 
+    // Cierra el desplegable al pulsar fuera
     document.addEventListener("click", (e) => {
       if (userWrapper && !userWrapper.contains(e.target)) {
         if (userDropdownMenu) userDropdownMenu.hidden = true;
@@ -42,19 +52,16 @@
       }
     });
 
+    // Cierra sesión y vuelve a la página principal
     btnLogout?.addEventListener("click", () => {
       sessionStorage.removeItem("usuario");
       window.location.href = "../index.html";
     });
-
-    if (sessionStorage.getItem("animacion-volver") === "true") {
-      document.body.style.animation = "slide-in-left 0.4s cubic-bezier(0.25, 0.8, 0.25, 1) forwards";
-      sessionStorage.removeItem("animacion-volver");
-    } else {
-      document.body.style.animation = "slide-in-right 0.4s cubic-bezier(0.25, 0.8, 0.25, 1) forwards";
-    }
   });
 
+  // =========================================================================
+  // 3. REFERENCIAS DEL FORMULARIO Y ADAPTACIÓN PARA PERSONAL
+  // =========================================================================
   const form = document.getElementById("booking-form");
   if (!form) return;
 
@@ -77,6 +84,7 @@
   const capaCumpleanero = document.getElementById("capa-cumpleanero");
   const nombreCumpleanero = document.getElementById("nombre-cumpleanero");
 
+  // Adapta la interfaz a modo panel operativo si el usuario es empleado o administrador
   if (esEmpleado) {
     document.getElementById("reserva-title").textContent = "Control y Gestión de Mesas";
     const introCopy = form.closest(".container").querySelector(".body-copy");
@@ -98,11 +106,15 @@
     }
   }
 
+  // =========================================================================
+  // 4. VALIDACIÓN DE FECHAS (JUEVES A DOMINGO) Y TIPO DE RESERVA
+  // =========================================================================
   if (fechaInput) {
     const hoy = new Date();
     const unMesDespues = new Date();
     unMesDespues.setMonth(hoy.getMonth() + 1);
 
+    // Restringe el rango seleccionable entre hoy y un mes vista
     fechaInput.min = hoy.toISOString().split("T")[0];
     fechaInput.max = unMesDespues.toISOString().split("T")[0];
 
@@ -110,6 +122,7 @@
       const fechaSeleccionada = new Date(e.target.value);
       const diaSemana = fechaSeleccionada.getDay();
 
+      // Bloquea lunes (1), martes (2) y miércoles (3); apertura solo jueves a domingo
       if (diaSemana === 1 || diaSemana === 2 || diaSemana === 3) {
         alert("La discoteca solo abre de Jueves a Domingo. Por favor, elige otra fecha.");
         e.target.value = "";
@@ -122,6 +135,7 @@
     });
   }
 
+  // Muestra u oculta el campo del homenajeado si la celebración es un cumpleaños
   if (tipoReservaInput && capaCumpleanero) {
     tipoReservaInput.addEventListener("change", (e) => {
       if (e.target.value === "cumpleanos") {
@@ -135,9 +149,20 @@
     });
   }
 
+  // =========================================================================
+  // 5. NAVEGACIÓN DEL ASISTENTE POR PASOS (WIZARD)
+  // =========================================================================
+
+  /** @returns {HTMLInputElement|null} Radio button de la mesa seleccionada */
   const selected = () => form.querySelector('input[name="mesa"]:checked');
+
+  /** @returns {boolean} Valida que el nombre del titular tenga al menos 2 caracteres */
   const validName = () => nombre.value.trim().length >= 2;
 
+  /**
+   * Cambia el paso visible del asistente y actualiza los indicadores de progreso.
+   * @param {number} step - Número de paso destino (1, 2 o 3).
+   */
   function goTo(step) {
     panels.forEach((p) => (p.hidden = p.dataset.step !== String(step)));
     labels.forEach((l) => {
@@ -151,6 +176,16 @@
     focusable?.focus();
   }
 
+  // =========================================================================
+  // 6. CONSULTA DE DISPONIBILIDAD Y RENDERIZADO DE TABLA
+  // =========================================================================
+
+  /**
+   * Consulta en `/api/reservasMesas` el estado de las mesas para una fecha dada
+   * y renderiza la tabla según el perfil (panel de control o selector cliente).
+   * @param {string} [fecha] - Fecha en formato ISO `YYYY-MM-DD`.
+   * @returns {Promise<void>}
+   */
   async function cargarMesas(fecha) {
     if (!tbody) return;
     
@@ -172,6 +207,7 @@
         const tr = document.createElement("tr");
 
         if (esEmpleado) {
+          // Vista de gestión para empleados con detalles del cliente y tipo de evento
           let detallesReserva = '<span class="form-hint" style="font-style: italic;">Sin reserva</span>';
           
           if (!mesa.disponible) {
@@ -191,6 +227,7 @@
             <td>${detallesReserva}</td>
           `;
         } else {
+          // Vista de selección interactiva para clientes
           const disabledAttr = mesa.disponible ? "" : "disabled";
           tr.className = mesa.disponible ? "is-selectable" : "is-disabled";
           tr.innerHTML = `
@@ -214,6 +251,10 @@
     }
   }
 
+  /**
+   * Vincula los eventos de clic en filas y cambio de radio buttons para marcar
+   * visualmente la mesa elegida y habilitar el botón de continuar.
+   */
   function configurarEventosTabla() {
     const radios = form.querySelectorAll('input[name="mesa"]');
     radios.forEach((radio) => {
@@ -231,7 +272,11 @@
     });
   }
 
+  // =========================================================================
+  // 7. FLUJO DE CONFIRMACIÓN Y ENVÍO DE RESERVA (MODO CLIENTE)
+  // =========================================================================
   if (!esEmpleado) {
+    // Avance del paso 1 (Fecha y Mesa) al paso 2 (Datos personales)
     next?.addEventListener("click", () => {
       const mesa = selected();
       if (!mesa || !fechaInput.value) {
@@ -246,8 +291,10 @@
       goTo(2);
     });
 
+    // Retroceso al paso 1
     back?.addEventListener("click", () => goTo(1));
 
+    // Validación en tiempo real del nombre del titular
     nombre?.addEventListener("input", () => {
       if (submit) submit.disabled = !validName();
       if (validName()) {
@@ -256,6 +303,7 @@
       }
     });
 
+    // Envío definitivo de la reserva mediante POST a `/api/crearReserva`
     form.addEventListener("submit", async (event) => {
       event.preventDefault();
       
@@ -299,6 +347,9 @@
     });
   }
 
+  // =========================================================================
+  // 8. INICIALIZACIÓN SEGÚN ROL DEL USUARIO
+  // =========================================================================
   if (esEmpleado) {
     const hoyStr = new Date().toISOString().split("T")[0];
     if (fechaInput) fechaInput.value = hoyStr;

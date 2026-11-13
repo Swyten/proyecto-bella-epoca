@@ -2,6 +2,9 @@
 (() => {
   "use strict";
 
+  // =========================================================================
+  // 1. GESTIÓN DE SESIÓN, PERFIL DE USUARIO Y ACCESO DE ADMINISTRACIÓN
+  // =========================================================================
   document.addEventListener("DOMContentLoaded", () => {
     const btnOpenLogin = document.getElementById("btn-open-login");
     const userWrapper = document.getElementById("user-profile-wrapper");
@@ -22,7 +25,7 @@
       if (userNameLabel) userNameLabel.textContent = usuario.email.split('@')[0];
       if (userEmailInfo) userEmailInfo.textContent = usuario.email;
 
-      // Si es administrador o empleado, añadimos el enlace de "Gestión de Reservas" heredando estilos de .site-nav
+      // Si es administrador o empleado, añade el enlace de "Gestión de Mesas" heredando estilos de .site-nav
       if (usuario.rol === 'empleado' || usuario.rol === 'administrador') {
         const enlaceGestion = document.createElement("a");
         enlaceGestion.href = "gestion-mesas.html";
@@ -30,6 +33,7 @@
         nav.insertBefore(enlaceGestion, userWrapper);
       }
 
+      // Alterna visibilidad del menú desplegable del perfil
       btnUserProfile?.addEventListener("click", (e) => {
         e.stopPropagation();
         const estaAbierto = !userDropdownMenu.hidden;
@@ -37,6 +41,7 @@
         btnUserProfile.setAttribute("aria-expanded", String(!estaAbierto));
       });
 
+      // Cierra el desplegable al pulsar fuera del contenedor
       document.addEventListener("click", (e) => {
         if (userWrapper && !userWrapper.contains(e.target)) {
           if (userDropdownMenu) userDropdownMenu.hidden = true;
@@ -44,6 +49,7 @@
         }
       });
 
+      // Cierra la sesión y redirige a la portada
       btnLogout?.addEventListener("click", () => {
         sessionStorage.removeItem("usuario");
         window.location.href = "../index.html";
@@ -59,39 +65,32 @@
     }
   });
 
-  // --- TRANSICIONES INSTANTÁNEAS DE ENTRADA ---
-  document.addEventListener("DOMContentLoaded", () => {
-    if (sessionStorage.getItem("animacion-volver") === "true") {
-      document.body.style.animation = "slide-in-left 0.4s cubic-bezier(0.25, 0.8, 0.25, 1) forwards";
-      sessionStorage.removeItem("animacion-volver");
-    } else {
-      document.body.style.animation = "slide-in-right 0.4s cubic-bezier(0.25, 0.8, 0.25, 1) forwards";
-    }
-  });
+  // =========================================================================
+  // 2. CONSTANTES, FORMATEADORES Y CLASIFICACIÓN TEMPORAL DE EVENTOS
+  // =========================================================================
 
-  document.querySelectorAll("a").forEach((enlace) => {
-    enlace.addEventListener("click", () => {
-      const href = enlace.getAttribute("href");
-      if (!href || href.startsWith("#")) return;
-      
-      if (href.includes("index.html")) {
-        sessionStorage.setItem("animacion-volver", "true");
-      }
-    });
-  });
-  // -----------------------------------------------
-
+  /** Listado de eventos cargados desde la API */
   let EVENTOS = [];
 
+  /** Descripción de beneficios incluidos según modalidad de entrada */
   const VENTAJAS = {
     general: "Acceso a la sala principal.",
     vip: "Acceso prioritario, zona reservada y copa de bienvenida.",
   };
 
+  /** Duración de 7 días en milisegundos para delimitar la pestaña "Esta semana" */
   const SEMANA = 7 * 24 * 60 * 60 * 1000;
+
+  /** Formateadores locales para moneda (EUR) y fecha/hora en español */
   const euros = new Intl.NumberFormat("es-ES", { style: "currency", currency: "EUR" });
   const fecha = new Intl.DateTimeFormat("es-ES", { weekday: "long", day: "numeric", month: "long", hour: "2-digit", minute: "2-digit" });
 
+  /**
+   * Clasifica un evento según su fecha de inicio y fin respecto al momento actual.
+   * @param {{inicio: string, fin: string}} ev - Objeto del evento.
+   * @param {number} [ahora=Date.now()] - Marca temporal de referencia en milisegundos.
+   * @returns {"pasados"|"actuales"|"proximos"} Categoría temporal del evento.
+   */
   function estado(ev, ahora = Date.now()) {
     const ini = new Date(ev.inicio).getTime();
     const fin = new Date(ev.fin).getTime();
@@ -100,14 +99,26 @@
     return "proximos";
   }
 
+  // =========================================================================
+  // 3. RENDERIZADO DE TARJETAS Y FILTRADO DE LA AGENDA
+  // =========================================================================
   const panel = document.getElementById("agenda-panel");
   const count = document.getElementById("agenda-count");
   const tabs = document.querySelectorAll("[data-filter]");
   if (!panel) return;
 
   const sesion = JSON.parse(sessionStorage.getItem("usuario") || "{}");
+  /** Indica si el usuario autenticado posee permisos de gestión de eventos */
   const esAdmin = sesion.rol === 'empleado' || sesion.rol === 'administrador';
 
+  /**
+   * Genera el marcado HTML de una tarjeta de evento con opciones de compra
+   * y controles de administración si corresponde.
+   * @param {Object} ev - Datos del evento.
+   * @param {number} i - Índice del evento en el array `EVENTOS`.
+   * @param {string} tipo - Filtro activo ("actuales", "proximos", "pasados").
+   * @returns {string} HTML de la tarjeta `<article class="agenda-card">`.
+   */
   function tarjeta(ev, i, tipo) {
     const pasado = tipo === "pasados";
     const enCurso = !pasado && new Date(ev.inicio).getTime() <= Date.now();
@@ -158,6 +169,11 @@
       </article>`;
   }
 
+  /**
+   * Filtra los eventos según la pestaña elegida, actualiza el panel principal,
+   * el contador de eventos y los atributos ARIA de accesibilidad.
+   * @param {string} filtro - Pestaña seleccionada ("actuales", "proximos", "pasados").
+   */
   function pintar(filtro) {
     const lista = EVENTOS.map((ev, i) => ({ ev, i })).filter(({ ev }) => estado(ev) === filtro);
     if (filtro === "pasados") lista.reverse();
@@ -174,19 +190,34 @@
 
   tabs.forEach((t) => t.addEventListener("click", () => pintar(t.dataset.filter)));
 
-  // ---- Compra de entradas ----
+  // =========================================================================
+  // 4. MODAL INTERACTIVO DE COMPRA DE ENTRADAS
+  // =========================================================================
   const dialog = document.getElementById("ticket-dialog");
   const form = document.getElementById("ticket-form");
   const $ = (id) => document.getElementById(id);
+
+  /** Límite máximo de entradas por operación */
   const MAX = 10;
+  /** Datos del evento y tarifa seleccionados para la compra en curso */
   let actual = null;
+  /** Cantidad de entradas seleccionada */
   let cantidad = 1;
+  /** Botón que abrió el diálogo para restaurar el foco al cerrar */
   let opener = null;
 
+  /**
+   * Alterna entre el paso 1 (selección y formulario) y el paso 2 (confirmación) del modal.
+   * @param {number} n - Número de paso visible (1 o 2).
+   */
   function paso(n) {
     form.querySelectorAll("[data-ticket-step]").forEach((p) => (p.hidden = p.dataset.ticketStep !== String(n)));
   }
   
+  /**
+   * Recalcula el importe total según la cantidad y habilita el envío solo
+   * cuando el nombre y el correo electrónico son válidos.
+   */
   function actualizar() {
     $("ticket-qty").textContent = cantidad;
     $("ticket-total").textContent = euros.format(cantidad * actual.precio);
@@ -194,6 +225,7 @@
     $("ticket-submit").disabled = !valido;
   }
 
+  // Abre el modal de compra precargando los datos del evento y modalidad elegidos
   panel.addEventListener("click", (e) => {
     const btn = e.target.closest("[data-buy]");
     if (!btn || !(dialog instanceof HTMLDialogElement)) return;
@@ -213,14 +245,18 @@
     dialog.showModal();
   });
 
+  // Controles de incremento/decremento de cantidad de entradas (entre 1 y MAX)
   form.querySelectorAll("[data-qty]").forEach((b) =>
     b.addEventListener("click", () => {
       cantidad = Math.min(MAX, Math.max(1, cantidad + Number(b.dataset.qty)));
       actualizar();
     })
   );
+
+  // Revalidación continua al escribir nombre o correo
   ["ticket-name", "ticket-email"].forEach((id) => $(id).addEventListener("input", actualizar));
 
+  // Procesa el envío del formulario de compra y muestra el resumen de confirmación
   form.addEventListener("submit", (e) => {
     e.preventDefault();
     if ($("ticket-submit").disabled) {
@@ -234,9 +270,19 @@
     paso(2);
   });
 
+  // Cierre del diálogo de entradas y restauración de foco
   form.querySelectorAll("[data-close]").forEach((b) => b.addEventListener("click", () => dialog.close()));
   dialog?.addEventListener("close", () => opener?.focus());
 
+  // =========================================================================
+  // 5. CARGA INICIAL DE EVENTOS DESDE LA API
+  // =========================================================================
+
+  /**
+   * Descarga la programación de eventos desde `/api/eventos` y renderiza
+   * la categoría indicada en el hash de la URL o "actuales" por defecto.
+   * @returns {Promise<void>}
+   */
   async function cargarEventos() {
     panel.innerHTML = '<p class="agenda-empty">Cargando agenda de eventos...</p>';
     try {

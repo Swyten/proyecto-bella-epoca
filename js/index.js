@@ -2,7 +2,9 @@
 (() => {
   "use strict";
 
-  // --- SISTEMA DE RESEÑAS ---
+  // =========================================================================
+  // 1. SISTEMA DE RESEÑAS (LECTURA, FILTRADO Y PUBLICACIÓN)
+  // =========================================================================
   const btnOpenReview = document.getElementById("btn-open-review");
   const reviewModal = document.getElementById("review-modal");
   const reviewForm = document.getElementById("review-form");
@@ -12,8 +14,14 @@
   const reviewTabs = document.querySelectorAll("[data-filter-review]");
   const reviewError = document.getElementById("review-error");
 
+  /** Caché en memoria con las reseñas obtenidas del servidor */
   let reseñasData = [];
 
+  /**
+   * Obtiene el listado completo de reseñas desde `/api/resenas` y renderiza
+   * la vista correspondiente a la pestaña de filtro activa.
+   * @returns {Promise<void>}
+   */
   async function cargarReseñas() {
     if (!reviewsContainer) return;
     reviewsContainer.innerHTML = '<p class="form-hint" style="grid-column: 1 / -1; text-align: center;">Cargando opiniones...</p>';
@@ -29,6 +37,7 @@
     }
   }
 
+  // Envío del formulario de nueva reseña mediante POST a la API
   reviewForm?.addEventListener("submit", async (e) => {
     e.preventDefault();
     
@@ -68,7 +77,11 @@
 
   cargarReseñas();
 
-  // Genera estrellas referenciando las variables CSS de estilos nativos
+  /**
+   * Genera el marcado HTML de las 5 estrellas coloreadas según la puntuación.
+   * @param {number} num - Valoración de 1 a 5.
+   * @returns {string} HTML con las etiquetas `<span>` de estrellas.
+   */
   const generarEstrellas = (num) => {
     let estrellasHTML = '';
     for (let i = 1; i <= 5; i++) {
@@ -77,6 +90,10 @@
     return estrellasHTML;
   };
 
+  /**
+   * Filtra, ordena cronológicamente y renderiza las tarjetas de reseñas en el DOM.
+   * @param {string} [filtro="todas"] - Criterio de filtrado ("todas", "positivas", "negativas").
+   */
   const pintarReseñas = (filtro = "todas") => {
     if (!reviewsContainer) return;
 
@@ -110,6 +127,7 @@
     }).join("");
   };
 
+  // Cambio de filtro al pulsar las pestañas de reseñas
   reviewTabs.forEach(tab => {
     tab.addEventListener("click", () => {
       reviewTabs.forEach(t => t.setAttribute("aria-selected", "false"));
@@ -120,6 +138,7 @@
 
   pintarReseñas();
 
+  // Apertura del modal de creación de reseña (requiere sesión iniciada)
   btnOpenReview?.addEventListener("click", () => {
     const sesion = sessionStorage.getItem("usuario");
     if (!sesion) {
@@ -134,6 +153,7 @@
     reviewModal?.showModal();
   });
 
+  // Selección interactiva de estrellas en el formulario de valoración
   if (starContainer) {
     starContainer.addEventListener("click", (e) => {
       if (e.target.tagName === "SPAN") {
@@ -146,7 +166,9 @@
     });
   }
 
-  // --- DETECCIÓN DE SESIÓN Y MENÚ DESPLEGABLE DE PERFIL ---
+  // =========================================================================
+  // 2. DETECCIÓN DE SESIÓN Y MENÚ DESPLEGABLE DE PERFIL
+  // =========================================================================
   document.addEventListener("DOMContentLoaded", () => {
     const btnOpenLogin = document.getElementById("btn-open-login");
     const userWrapper = document.getElementById("user-profile-wrapper");
@@ -167,6 +189,7 @@
       if (userNameLabel) userNameLabel.textContent = usuario.email.split('@')[0];
       if (userEmailInfo) userEmailInfo.textContent = usuario.email;
 
+      // Abre o cierra el desplegable de perfil
       btnUserProfile?.addEventListener("click", (e) => {
         e.stopPropagation();
         const estaAbierto = !userDropdownMenu.hidden;
@@ -174,6 +197,7 @@
         btnUserProfile.setAttribute("aria-expanded", String(!estaAbierto));
       });
 
+      // Cierra el desplegable si se pulsa fuera de él
       document.addEventListener("click", (e) => {
         if (!userWrapper.contains(e.target)) {
           if (userDropdownMenu) userDropdownMenu.hidden = true;
@@ -181,6 +205,7 @@
         }
       });
 
+      // Elimina la sesión almacenada y recarga la página
       btnLogout?.addEventListener("click", () => {
         sessionStorage.removeItem("usuario");
         window.location.reload();
@@ -191,9 +216,12 @@
     }
   });
 
+  // =========================================================================
+  // 3. AUTENTICACIÓN CON GOOGLE OAUTH 2.0 (GSI)
+  // =========================================================================
   let googleClient;
 
-  // --- INICIALIZAR GOOGLE OAUTH ---
+  // Inicializa el cliente OAuth de Google una vez cargado el script externo
   window.onload = () => {
     if (window.google) {
       googleClient = google.accounts.oauth2.initTokenClient({
@@ -233,6 +261,7 @@
     }
   };
 
+  // Dispara el flujo de consentimiento de Google al pulsar el botón correspondiente
   document.addEventListener("DOMContentLoaded", () => {
     const btnGoogle = document.getElementById("btn-google");
     
@@ -245,7 +274,9 @@
     });
   });
 
-  // --- LOGIN, REGISTRO Y VERIFICACIÓN POR CÓDIGO ---
+  // =========================================================================
+  // 4. LOGIN TRADICIONAL, REGISTRO Y VERIFICACIÓN POR CÓDIGO OTP
+  // =========================================================================
   const loginModal = document.getElementById("login-modal");
   const btnOpenLogin = document.getElementById("btn-open-login");
   const loginForm = document.getElementById("login-form");
@@ -260,8 +291,10 @@
   const verifyError = document.getElementById("verify-error");
   const btnBackToLogin = document.getElementById("btn-back-to-login");
 
+  /** Correo pendiente de confirmación mediante código de 6 dígitos */
   let emailPendienteVerificar = '';
 
+  // Reinicia ambos pasos del modal de acceso antes de mostrarlo
   btnOpenLogin?.addEventListener("click", () => {
     loginForm?.reset();
     verifyForm?.reset();
@@ -272,6 +305,7 @@
     loginModal?.showModal();
   });
 
+  // Inicio de sesión con correo y contraseña contra `/api/login`
   loginForm?.addEventListener("submit", async (e) => {
     e.preventDefault();
     const email = document.getElementById("login-email").value.trim();
@@ -303,6 +337,7 @@
     }
   });
 
+  // Registro de nueva cuenta y transición al paso de verificación por correo
   btnRegister?.addEventListener("click", async () => {
     if (!loginForm.checkValidity()) {
       loginForm.reportValidity();
@@ -340,6 +375,7 @@
     }
   });
 
+  // Validación del código OTP de 6 dígitos enviado al usuario
   verifyForm?.addEventListener("submit", async (e) => {
     e.preventDefault();
     const codigo = verifyCodeInput.value.trim();
@@ -372,37 +408,25 @@
     }
   });
 
+  // Regresa del paso de verificación al formulario de inicio de sesión
   btnBackToLogin?.addEventListener("click", () => {
     authStep2.hidden = true;
     authStep1.hidden = false;
   });
 
-  // --- TRANSICIONES DE ENTRADA ---
-  document.addEventListener("DOMContentLoaded", () => {
-    if (sessionStorage.getItem("animacion-volver") === "true") {
-      document.body.style.animation = "slide-in-left 0.4s cubic-bezier(0.25, 0.8, 0.25, 1) forwards";
-      sessionStorage.removeItem("animacion-volver");
-    } else {
-      document.body.style.animation = "slide-in-right 0.4s cubic-bezier(0.25, 0.8, 0.25, 1) forwards";
-    }
-  });
-
-  document.querySelectorAll("a").forEach((enlace) => {
-    enlace.addEventListener("click", () => {
-      const href = enlace.getAttribute("href");
-      if (!href || href.startsWith("#")) return;
-      if (href.includes("index.html")) {
-        sessionStorage.setItem("animacion-volver", "true");
-      }
-    });
-  });
-
-  // --- MENÚ RESPONSIVE Y PESTAÑAS ---
+  // =========================================================================
+  // 5. MENÚ RESPONSIVE Y PESTAÑAS ACCESIBLES (ARIA)
+  // =========================================================================
   const menu = document.querySelector(".menu-toggle");
   const nav = document.getElementById("site-nav");
+
+  /**
+   * Contrae el menú de navegación móvil actualizando `aria-expanded`.
+   */
   function closeMenu() {
     menu?.setAttribute("aria-expanded", "false");
   }
+
   menu?.addEventListener("click", () => {
     menu.setAttribute("aria-expanded", String(menu.getAttribute("aria-expanded") !== "true"));
   });
@@ -423,6 +447,12 @@
 
   const tabs = [...document.querySelectorAll('[role="tab"]')];
   const panels = [...document.querySelectorAll('[role="tabpanel"]')];
+
+  /**
+   * Activa una pestaña ARIA y muestra su panel asociado.
+   * @param {HTMLElement} tab - Pestaña a seleccionar.
+   * @param {boolean} [focus=false] - Indica si debe recibir el foco del teclado.
+   */
   function activateTab(tab, focus = false) {
     tabs.forEach((item) => {
       const selected = item === tab;
@@ -434,6 +464,8 @@
     });
     if (focus) tab.focus();
   }
+
+  // Navegación por clic y teclas de dirección entre pestañas
   tabs.forEach((tab, index) => {
     tab.addEventListener("click", () => activateTab(tab));
     tab.addEventListener("keydown", (event) => {
@@ -450,13 +482,20 @@
   });
   if (tabs[0]) activateTab(tabs[0]);
 
-  // --- VISOR DE GALERÍA DE INICIO ---
+  // =========================================================================
+  // 6. VISOR MODAL DE GALERÍA DE INICIO Y GUARDIA DE RESERVAS
+  // =========================================================================
   const gallery = document.getElementById("gallery-dialog");
   const enlarged = document.getElementById("gallery-image");
   const caption = document.getElementById("gallery-caption");
   const images = [...document.querySelectorAll(".gallery-item")];
   let current = 0;
   let opener = null;
+
+  /**
+   * Actualiza la fotografía mostrada y el pie de foto en el visor modal de portada.
+   * @param {number} index - Índice de la miniatura seleccionada.
+   */
   function updateImage(index) {
     current = (index + images.length) % images.length;
     const link = images[current];
@@ -466,6 +505,7 @@
     enlarged.alt = image.alt;
     caption.textContent = `${image.alt} — ${current + 1} / ${images.length}`;
   }
+
   images.forEach((link, index) => {
     link.addEventListener("click", (event) => {
       if (!(gallery instanceof HTMLDialogElement) || typeof gallery.showModal !== "function") return;
@@ -475,8 +515,10 @@
       gallery.showModal();
     });
   });
+
   document.querySelector("[data-gallery-prev]")?.addEventListener("click", () => updateImage(current - 1));
   document.querySelector("[data-gallery-next]")?.addEventListener("click", () => updateImage(current + 1));
+
   gallery?.addEventListener("keydown", (event) => {
     if (event.key === "ArrowRight") {
       event.preventDefault();
@@ -487,6 +529,8 @@
       updateImage(current - 1);
     }
   });
+
+  // Cierre genérico para todos los elementos <dialog> de la página
   document.querySelectorAll("[data-dialog-close]").forEach((button) => {
     button.addEventListener("click", () => button.closest("dialog")?.close());
   });
@@ -505,6 +549,7 @@
   });
   gallery?.addEventListener("close", () => opener?.focus());
 
+  // Verifica que el usuario tenga sesión antes de redirigir al asistente de reservas
   document.querySelectorAll("[data-booking]").forEach((link) => {
     link.addEventListener("click", (event) => {
       event.preventDefault();
