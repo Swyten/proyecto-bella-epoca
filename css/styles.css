@@ -1313,12 +1313,11 @@
       overflow: visible;
     }
 
-    #user-profile-wrapper {
+    #user-profile-wrapper:not([hidden]) {
       display: flex !important;
       flex-direction: column;
       align-items: flex-end;
     }
-
     #user-dropdown-menu {
       position: static !important;
       margin-top: var(--space-2);
