@@ -261,22 +261,220 @@
 
   const authStep1 = document.getElementById("auth-step-1");
   const authStep2 = document.getElementById("auth-step-2");
+  const authStepForgot = document.getElementById("auth-step-forgot");
+  const authStepReset = document.getElementById("auth-step-reset");
+  const loginTitle = document.getElementById("login-title");
+  const loginContextAlert = document.getElementById("login-context-alert");
+  const loginContextMessage = document.getElementById("login-context-message");
+
   const verifyEmailTarget = document.getElementById("verify-email-target");
   const verifyForm = document.getElementById("verify-form");
   const verifyCodeInput = document.getElementById("verify-code");
   const verifyError = document.getElementById("verify-error");
   const btnBackToLogin = document.getElementById("btn-back-to-login");
-  // Reinicia ambos pasos del modal de acceso antes de mostrarlo
+
+  const btnForgotPassword = document.getElementById("btn-forgot-password");
+  const forgotForm = document.getElementById("forgot-form");
+  const forgotEmailInput = document.getElementById("forgot-email");
+  const forgotError = document.getElementById("forgot-error");
+  const btnSendRecovery = document.getElementById("btn-send-recovery");
+  const btnBackFromForgot = document.getElementById("btn-back-from-forgot");
+
+  const resetEmailTarget = document.getElementById("reset-email-target");
+  const resetForm = document.getElementById("reset-form");
+  const resetCodeInput = document.getElementById("reset-code");
+  const resetNewPassInput = document.getElementById("reset-new-pass");
+  const resetConfirmPassInput = document.getElementById("reset-confirm-pass");
+  const resetError = document.getElementById("reset-error");
+  const btnConfirmReset = document.getElementById("btn-confirm-reset");
+  const btnBackFromReset = document.getElementById("btn-back-from-reset");
+
+  /** Correo pendiente de confirmación en registro o recuperación */
+  let emailPendienteVerificar = '';
+  /** Correo del usuario que está restableciendo su contraseña */
+  let emailRecuperacion = '';
+
+  /**
+   * Alterna de forma accesible entre las distintas vistas del modal de acceso
+   * actualizando el encabezado principal y ocultando errores previos.
+   * @param {"login"|"verify"|"forgot"|"reset"} vista - Vista activa del modal.
+   */
+  function mostrarVistaAuth(vista) {
+    if (authStep1) authStep1.hidden = vista !== "login";
+    if (authStep2) authStep2.hidden = vista !== "verify";
+    if (authStepForgot) authStepForgot.hidden = vista !== "forgot";
+    if (authStepReset) authStepReset.hidden = vista !== "reset";
+
+    if (loginError) loginError.hidden = true;
+    if (verifyError) verifyError.hidden = true;
+    if (forgotError) forgotError.hidden = true;
+    if (resetError) resetError.hidden = true;
+
+    const titulos = {
+      login: "Acceso",
+      verify: "Verificar cuenta",
+      forgot: "Recordar contraseña",
+      reset: "Nueva contraseña"
+    };
+    if (loginTitle && titulos[vista]) {
+      loginTitle.textContent = titulos[vista];
+    }
+  }
+
+  // Reinicia todos los pasos del modal de acceso antes de mostrarlo
   btnOpenLogin?.addEventListener("click", () => {
     loginForm?.reset();
     verifyForm?.reset();
-    if (loginError) loginError.hidden = true;
-    if (verifyError) verifyError.hidden = true;
-    const contextAlert = document.getElementById("login-context-alert");
-    if (contextAlert) contextAlert.hidden = true;
-    if (authStep1) authStep1.hidden = false;
-    if (authStep2) authStep2.hidden = true;
+    forgotForm?.reset();
+    resetForm?.reset();
+    if (loginContextAlert) loginContextAlert.hidden = true;
+    mostrarVistaAuth("login");
     loginModal?.showModal();
+  });
+
+  // Navegación desde el formulario de login hacia "Recordar contraseña"
+  btnForgotPassword?.addEventListener("click", () => {
+    forgotForm?.reset();
+    if (loginContextAlert) loginContextAlert.hidden = true;
+    // Si el usuario ya había escrito su correo en login, lo precargamos por comodidad
+    const correoPrevio = document.getElementById("login-email")?.value.trim();
+    if (correoPrevio && forgotEmailInput) {
+      forgotEmailInput.value = correoPrevio;
+    }
+    mostrarVistaAuth("forgot");
+    forgotEmailInput?.focus();
+  });
+
+  // Botones de retorno al inicio de sesión desde los pasos de recuperación
+  btnBackFromForgot?.addEventListener("click", () => {
+    mostrarVistaAuth("login");
+    document.getElementById("login-email")?.focus();
+  });
+
+  btnBackFromReset?.addEventListener("click", () => {
+    mostrarVistaAuth("login");
+    document.getElementById("login-email")?.focus();
+  });
+
+  // Paso 1 de recuperación: Solicitud de envío de código OTP al correo
+  forgotForm?.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const email = forgotEmailInput.value.trim();
+    if (!email) return;
+
+    if (forgotError) forgotError.hidden = true;
+    if (btnSendRecovery) {
+      btnSendRecovery.disabled = true;
+      btnSendRecovery.textContent = "Enviando código...";
+    }
+
+    try {
+      const response = await fetch('/api/recuperar-password', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email })
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        forgotError.textContent = data.error || "No se pudo enviar el código de verificación.";
+        forgotError.hidden = false;
+        return;
+      }
+
+      emailRecuperacion = email;
+      if (resetEmailTarget) resetEmailTarget.textContent = email;
+      resetForm?.reset();
+      mostrarVistaAuth("reset");
+      resetCodeInput?.focus();
+    } catch (error) {
+      forgotError.textContent = "Error de conexión con el servidor.";
+      forgotError.hidden = false;
+    } finally {
+      if (btnSendRecovery) {
+        btnSendRecovery.disabled = false;
+        btnSendRecovery.textContent = "Enviar código de verificación";
+      }
+    }
+  });
+
+  // Paso 2 de recuperación: Verificación de código OTP y guardado de nueva contraseña
+  resetForm?.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const codigo = resetCodeInput.value.trim();
+    const nuevaPassword = resetNewPassInput.value;
+    const confirmarPassword = resetConfirmPassInput.value;
+
+    if (resetError) resetError.hidden = true;
+
+    if (!/^\d{6}$/.test(codigo)) {
+      resetError.textContent = "El código de verificación debe tener 6 dígitos.";
+      resetError.hidden = false;
+      resetCodeInput.focus();
+      return;
+    }
+
+    if (nuevaPassword.length < 6) {
+      resetError.textContent = "La nueva contraseña debe tener al menos 6 caracteres.";
+      resetError.hidden = false;
+      resetNewPassInput.focus();
+      return;
+    }
+
+    if (nuevaPassword !== confirmarPassword) {
+      resetError.textContent = "Las contraseñas no coinciden. Revísalas e inténtalo de nuevo.";
+      resetError.hidden = false;
+      resetConfirmPassInput.focus();
+      return;
+    }
+
+    if (btnConfirmReset) {
+      btnConfirmReset.disabled = true;
+      btnConfirmReset.textContent = "Actualizando contraseña...";
+    }
+
+    try {
+      const response = await fetch('/api/restablecer-password', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          email: emailRecuperacion,
+          codigo,
+          nuevaPassword
+        })
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        resetError.textContent = data.error || "Código incorrecto o expirado.";
+        resetError.hidden = false;
+        return;
+      }
+
+      // Vuelve al formulario de login con confirmación accesible integrada
+      mostrarVistaAuth("login");
+      const loginEmailField = document.getElementById("login-email");
+      const loginPassField = document.getElementById("login-pass");
+      if (loginEmailField) loginEmailField.value = emailRecuperacion;
+      if (loginPassField) loginPassField.value = "";
+
+      if (loginContextAlert && loginContextMessage) {
+        loginContextAlert.className = "alert alert--success";
+        loginContextMessage.textContent = "Contraseña actualizada correctamente. Ya puedes iniciar sesión con tu nueva clave.";
+        loginContextAlert.hidden = false;
+      }
+      loginPassField?.focus();
+    } catch (error) {
+      resetError.textContent = "Error de conexión al actualizar la contraseña.";
+      resetError.hidden = false;
+    } finally {
+      if (btnConfirmReset) {
+        btnConfirmReset.disabled = false;
+        btnConfirmReset.textContent = "Actualizar contraseña";
+      }
+    }
   });
 
   loginForm?.addEventListener("submit", async (e) => {
@@ -336,9 +534,7 @@
 
       emailPendienteVerificar = email;
       if (verifyEmailTarget) verifyEmailTarget.textContent = email;
-      loginError.hidden = true;
-      authStep1.hidden = true;
-      authStep2.hidden = false;
+      mostrarVistaAuth("verify");
       verifyCodeInput?.focus();
 
     } catch (error) {
@@ -366,10 +562,12 @@
         return;
       }
 
-      alert("¡Cuenta verificada con éxito! Ya puedes iniciar sesión.");
-      
-      authStep2.hidden = true;
-      authStep1.hidden = false;
+      mostrarVistaAuth("login");
+      if (loginContextAlert && loginContextMessage) {
+        loginContextAlert.className = "alert alert--success";
+        loginContextMessage.textContent = "¡Cuenta verificada con éxito! Ya puedes iniciar sesión.";
+        loginContextAlert.hidden = false;
+      }
       document.getElementById("login-pass").value = "";
       document.getElementById("login-pass").focus();
 
@@ -380,8 +578,7 @@
   });
 
   btnBackToLogin?.addEventListener("click", () => {
-    authStep2.hidden = true;
-    authStep1.hidden = false;
+    mostrarVistaAuth("login");
   });
 
   // =========================================================================
@@ -452,12 +649,12 @@
    * @param {string} mensaje - Explicación del motivo por el que se solicita acceso.
    */
   function solicitarAccesoConMensaje(mensaje) {
-    const contextAlert = document.getElementById("login-context-alert");
-    const contextMsg = document.getElementById("login-context-message");
-    if (contextAlert && contextMsg) {
-      contextMsg.textContent = mensaje;
-      contextAlert.hidden = false;
+    if (loginContextAlert && loginContextMessage) {
+      loginContextAlert.className = "alert alert--info";
+      loginContextMessage.textContent = mensaje;
+      loginContextAlert.hidden = false;
     }
+    mostrarVistaAuth("login");
     document.getElementById("login-modal")?.showModal();
   }
 

@@ -467,8 +467,14 @@
           <div class="form-field">
             <label class="form-label" for="login-pass">Contraseña</label>
             <input class="form-input" type="password" id="login-pass" required>
+            <!-- Opción accesible para iniciar el flujo de recuperación de contraseña -->
+            <div style="display: flex; justify-content: flex-end; margin-top: var(--space-1);">
+              <button type="button" id="btn-forgot-password" class="text-link" style="background: none; border: 0; padding: var(--space-1) 0; min-height: 36px;">
+                ¿Has olvidado tu contraseña?
+              </button>
+            </div>
           </div>
-          <p id="login-error" class="form-error" hidden></p>
+          <p id="login-error" class="form-error" role="alert" hidden></p>
           <div class="wizard-actions" style="flex-direction: column; margin-top: var(--space-4);">
             <button type="submit" class="btn btn--primary" style="width: 100%;">Iniciar Sesión</button>
             <button type="button" id="btn-register" class="btn btn--outline" style="width: 100%;">Registrarse</button>
@@ -491,10 +497,55 @@
             <label class="form-label" for="verify-code">Código de 6 dígitos</label>
             <input class="form-input" type="text" id="verify-code" maxlength="6" pattern="[0-9]{6}" placeholder="123456" required style="text-align: center; letter-spacing: 5px; font-size: var(--text-lg);">
           </div>
-          <p id="verify-error" class="form-error" hidden></p>
+          <p id="verify-error" class="form-error" role="alert" hidden></p>
           <div class="wizard-actions" style="flex-direction: column; margin-top: var(--space-4);">
             <button type="submit" class="btn btn--primary" style="width: 100%;">Confirmar Cuenta</button>
             <button type="button" id="btn-back-to-login" class="btn btn--ghost" style="width: 100%;">Volver al acceso</button>
+          </div>
+        </form>
+      </div>
+
+      <!-- PASO 3: SOLICITUD DE CÓDIGO PARA RECUPERAR CONTRASEÑA -->
+      <div id="auth-step-forgot" hidden>
+        <p class="body-copy" style="margin-bottom: var(--space-5);">
+          Introduce el correo electrónico asociado a tu cuenta y te enviaremos un código de verificación de 6 dígitos para restablecer tu contraseña.
+        </p>
+        <form id="forgot-form" class="form">
+          <div class="form-field">
+            <label class="form-label" for="forgot-email">Correo electrónico</label>
+            <input class="form-input" type="email" id="forgot-email" autocomplete="email" placeholder="tu@correo.com" required>
+          </div>
+          <p id="forgot-error" class="form-error" role="alert" hidden></p>
+          <div class="wizard-actions" style="flex-direction: column; margin-top: var(--space-4);">
+            <button type="submit" id="btn-send-recovery" class="btn btn--primary" style="width: 100%;">Enviar código de verificación</button>
+            <button type="button" id="btn-back-from-forgot" class="btn btn--ghost" style="width: 100%;">Volver al inicio de sesión</button>
+          </div>
+        </form>
+      </div>
+
+      <!-- PASO 4: VERIFICACIÓN DE CÓDIGO Y NUEVA CONTRASEÑA -->
+      <div id="auth-step-reset" hidden>
+        <p class="body-copy" style="margin-bottom: var(--space-5);">
+          Introduce el código de 6 dígitos enviado a:<br>
+          <strong id="reset-email-target" class="eyebrow" style="display: block; margin-top: var(--space-2);"></strong>
+        </p>
+        <form id="reset-form" class="form">
+          <div class="form-field">
+            <label class="form-label" for="reset-code">Código de verificación</label>
+            <input class="form-input" type="text" id="reset-code" inputmode="numeric" maxlength="6" pattern="[0-9]{6}" placeholder="123456" required style="text-align: center; letter-spacing: 5px; font-size: var(--text-lg);">
+          </div>
+          <div class="form-field">
+            <label class="form-label" for="reset-new-pass">Nueva contraseña</label>
+            <input class="form-input" type="password" id="reset-new-pass" minlength="6" autocomplete="new-password" placeholder="Mínimo 6 caracteres" required>
+          </div>
+          <div class="form-field">
+            <label class="form-label" for="reset-confirm-pass">Confirmar nueva contraseña</label>
+            <input class="form-input" type="password" id="reset-confirm-pass" minlength="6" autocomplete="new-password" placeholder="Repite la contraseña" required>
+          </div>
+          <p id="reset-error" class="form-error" role="alert" hidden></p>
+          <div class="wizard-actions" style="flex-direction: column; margin-top: var(--space-4);">
+            <button type="submit" id="btn-confirm-reset" class="btn btn--primary" style="width: 100%;">Actualizar contraseña</button>
+            <button type="button" id="btn-back-from-reset" class="btn btn--ghost" style="width: 100%;">Volver al inicio de sesión</button>
           </div>
         </form>
       </div>
