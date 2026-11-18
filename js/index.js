@@ -14,14 +14,8 @@
   const reviewTabs = document.querySelectorAll("[data-filter-review]");
   const reviewError = document.getElementById("review-error");
 
-  /** Caché en memoria con las reseñas obtenidas del servidor */
   let reseñasData = [];
 
-  /**
-   * Obtiene el listado completo de reseñas desde `/api/resenas` y renderiza
-   * la vista correspondiente a la pestaña de filtro activa.
-   * @returns {Promise<void>}
-   */
   async function cargarReseñas() {
     if (!reviewsContainer) return;
     reviewsContainer.innerHTML = '<p class="form-hint" style="grid-column: 1 / -1; text-align: center;">Cargando opiniones...</p>';
@@ -37,7 +31,6 @@
     }
   }
 
-  // Envío del formulario de nueva reseña mediante POST a la API
   reviewForm?.addEventListener("submit", async (e) => {
     e.preventDefault();
     
@@ -77,11 +70,6 @@
 
   cargarReseñas();
 
-  /**
-   * Genera el marcado HTML de las 5 estrellas coloreadas según la puntuación.
-   * @param {number} num - Valoración de 1 a 5.
-   * @returns {string} HTML con las etiquetas `<span>` de estrellas.
-   */
   const generarEstrellas = (num) => {
     let estrellasHTML = '';
     for (let i = 1; i <= 5; i++) {
@@ -90,10 +78,6 @@
     return estrellasHTML;
   };
 
-  /**
-   * Filtra, ordena cronológicamente y renderiza las tarjetas de reseñas en el DOM.
-   * @param {string} [filtro="todas"] - Criterio de filtrado ("todas", "positivas", "negativas").
-   */
   const pintarReseñas = (filtro = "todas") => {
     if (!reviewsContainer) return;
 
@@ -127,7 +111,6 @@
     }).join("");
   };
 
-  // Cambio de filtro al pulsar las pestañas de reseñas
   reviewTabs.forEach(tab => {
     tab.addEventListener("click", () => {
       reviewTabs.forEach(t => t.setAttribute("aria-selected", "false"));
@@ -138,7 +121,6 @@
 
   pintarReseñas();
 
-  // Apertura del modal de creación de reseña (requiere sesión iniciada)
   btnOpenReview?.addEventListener("click", () => {
     const sesion = sessionStorage.getItem("usuario");
     if (!sesion) {
@@ -153,7 +135,6 @@
     reviewModal?.showModal();
   });
 
-  // Selección interactiva de estrellas en el formulario de valoración
   if (starContainer) {
     starContainer.addEventListener("click", (e) => {
       if (e.target.tagName === "SPAN") {
@@ -189,7 +170,6 @@
       if (userNameLabel) userNameLabel.textContent = usuario.email.split('@')[0];
       if (userEmailInfo) userEmailInfo.textContent = usuario.email;
 
-      // Abre o cierra el desplegable de perfil
       btnUserProfile?.addEventListener("click", (e) => {
         e.stopPropagation();
         const estaAbierto = !userDropdownMenu.hidden;
@@ -197,7 +177,6 @@
         btnUserProfile.setAttribute("aria-expanded", String(!estaAbierto));
       });
 
-      // Cierra el desplegable si se pulsa fuera de él
       document.addEventListener("click", (e) => {
         if (!userWrapper.contains(e.target)) {
           if (userDropdownMenu) userDropdownMenu.hidden = true;
@@ -205,7 +184,6 @@
         }
       });
 
-      // Elimina la sesión almacenada y recarga la página
       btnLogout?.addEventListener("click", () => {
         sessionStorage.removeItem("usuario");
         window.location.reload();
@@ -221,7 +199,6 @@
   // =========================================================================
   let googleClient;
 
-  // Inicializa el cliente OAuth de Google una vez cargado el script externo
   window.onload = () => {
     if (window.google) {
       googleClient = google.accounts.oauth2.initTokenClient({
@@ -261,7 +238,6 @@
     }
   };
 
-  // Dispara el flujo de consentimiento de Google al pulsar el botón correspondiente
   document.addEventListener("DOMContentLoaded", () => {
     const btnGoogle = document.getElementById("btn-google");
     
@@ -290,22 +266,19 @@
   const verifyCodeInput = document.getElementById("verify-code");
   const verifyError = document.getElementById("verify-error");
   const btnBackToLogin = document.getElementById("btn-back-to-login");
-
-  /** Correo pendiente de confirmación mediante código de 6 dígitos */
-  let emailPendienteVerificar = '';
-
   // Reinicia ambos pasos del modal de acceso antes de mostrarlo
   btnOpenLogin?.addEventListener("click", () => {
     loginForm?.reset();
     verifyForm?.reset();
     if (loginError) loginError.hidden = true;
     if (verifyError) verifyError.hidden = true;
+    const contextAlert = document.getElementById("login-context-alert");
+    if (contextAlert) contextAlert.hidden = true;
     if (authStep1) authStep1.hidden = false;
     if (authStep2) authStep2.hidden = true;
     loginModal?.showModal();
   });
 
-  // Inicio de sesión con correo y contraseña contra `/api/login`
   loginForm?.addEventListener("submit", async (e) => {
     e.preventDefault();
     const email = document.getElementById("login-email").value.trim();
@@ -337,7 +310,6 @@
     }
   });
 
-  // Registro de nueva cuenta y transición al paso de verificación por correo
   btnRegister?.addEventListener("click", async () => {
     if (!loginForm.checkValidity()) {
       loginForm.reportValidity();
@@ -375,7 +347,6 @@
     }
   });
 
-  // Validación del código OTP de 6 dígitos enviado al usuario
   verifyForm?.addEventListener("submit", async (e) => {
     e.preventDefault();
     const codigo = verifyCodeInput.value.trim();
@@ -408,82 +379,13 @@
     }
   });
 
-  // Regresa del paso de verificación al formulario de inicio de sesión
   btnBackToLogin?.addEventListener("click", () => {
     authStep2.hidden = true;
     authStep1.hidden = false;
   });
 
   // =========================================================================
-  // 5. MENÚ RESPONSIVE Y PESTAÑAS ACCESIBLES (ARIA)
-  // =========================================================================
-  const menu = document.querySelector(".menu-toggle");
-  const nav = document.getElementById("site-nav");
-
-  /**
-   * Contrae el menú de navegación móvil actualizando `aria-expanded`.
-   */
-  function closeMenu() {
-    menu?.setAttribute("aria-expanded", "false");
-  }
-
-  menu?.addEventListener("click", () => {
-    menu.setAttribute("aria-expanded", String(menu.getAttribute("aria-expanded") !== "true"));
-  });
-  nav?.addEventListener("click", (event) => {
-    if (event.target instanceof Element && event.target.closest("a")) closeMenu();
-  });
-  document.addEventListener("keydown", (event) => {
-    if (event.key === "Escape" && menu?.getAttribute("aria-expanded") === "true") {
-      closeMenu();
-      menu.focus();
-    }
-  });
-  document.addEventListener("click", (event) => {
-    if (event.target instanceof Element && !event.target.closest(".site-header")) closeMenu();
-  });
-  const desktop = window.matchMedia("(min-width: 769px)");
-  desktop.addEventListener("change", closeMenu);
-
-  const tabs = [...document.querySelectorAll('[role="tab"]')];
-  const panels = [...document.querySelectorAll('[role="tabpanel"]')];
-
-  /**
-   * Activa una pestaña ARIA y muestra su panel asociado.
-   * @param {HTMLElement} tab - Pestaña a seleccionar.
-   * @param {boolean} [focus=false] - Indica si debe recibir el foco del teclado.
-   */
-  function activateTab(tab, focus = false) {
-    tabs.forEach((item) => {
-      const selected = item === tab;
-      item.setAttribute("aria-selected", String(selected));
-      item.tabIndex = selected ? 0 : -1;
-    });
-    panels.forEach((panel) => {
-      panel.hidden = panel.id !== tab.getAttribute("aria-controls");
-    });
-    if (focus) tab.focus();
-  }
-
-  // Navegación por clic y teclas de dirección entre pestañas
-  tabs.forEach((tab, index) => {
-    tab.addEventListener("click", () => activateTab(tab));
-    tab.addEventListener("keydown", (event) => {
-      let target;
-      if (event.key === "ArrowRight") target = tabs[(index + 1) % tabs.length];
-      if (event.key === "ArrowLeft") target = tabs[(index - 1 + tabs.length) % tabs.length];
-      if (event.key === "Home") target = tabs[0];
-      if (event.key === "End") target = tabs[tabs.length - 1];
-      if (target) {
-        event.preventDefault();
-        activateTab(target, true);
-      }
-    });
-  });
-  if (tabs[0]) activateTab(tabs[0]);
-
-  // =========================================================================
-  // 6. VISOR MODAL DE GALERÍA DE INICIO Y GUARDIA DE RESERVAS
+  // 6. VISOR MODAL DE GALERÍA DE INICIO Y GUARDIAS DE SESIÓN
   // =========================================================================
   const gallery = document.getElementById("gallery-dialog");
   const enlarged = document.getElementById("gallery-image");
@@ -492,10 +394,6 @@
   let current = 0;
   let opener = null;
 
-  /**
-   * Actualiza la fotografía mostrada y el pie de foto en el visor modal de portada.
-   * @param {number} index - Índice de la miniatura seleccionada.
-   */
   function updateImage(index) {
     current = (index + images.length) % images.length;
     const link = images[current];
@@ -530,7 +428,6 @@
     }
   });
 
-  // Cierre genérico para todos los elementos <dialog> de la página
   document.querySelectorAll("[data-dialog-close]").forEach((button) => {
     button.addEventListener("click", () => button.closest("dialog")?.close());
   });
@@ -549,16 +446,43 @@
   });
   gallery?.addEventListener("close", () => opener?.focus());
 
+  /**
+   * Abre el modal de inicio de sesión mostrando un aviso contextual accesible
+   * sin bloquear la navegación con cuadros alert() nativos.
+   * @param {string} mensaje - Explicación del motivo por el que se solicita acceso.
+   */
+  function solicitarAccesoConMensaje(mensaje) {
+    const contextAlert = document.getElementById("login-context-alert");
+    const contextMsg = document.getElementById("login-context-message");
+    if (contextAlert && contextMsg) {
+      contextMsg.textContent = mensaje;
+      contextAlert.hidden = false;
+    }
+    document.getElementById("login-modal")?.showModal();
+  }
+
   // Verifica que el usuario tenga sesión antes de redirigir al asistente de reservas
   document.querySelectorAll("[data-booking]").forEach((link) => {
     link.addEventListener("click", (event) => {
       event.preventDefault();
       const sesion = sessionStorage.getItem("usuario");
       if (!sesion) {
-        alert("Debes iniciar sesión para realizar una reserva.");
-        document.getElementById("login-modal")?.showModal();
+        solicitarAccesoConMensaje("Debes iniciar sesión con tu cuenta para realizar una reserva de mesa.");
       } else {
         window.location.href = "html/reserva.html";
+      }
+    });
+  });
+
+  // Verifica que el usuario tenga sesión antes de redirigir a la compra de entradas anticipadas
+  document.querySelectorAll("[data-tickets]").forEach((link) => {
+    link.addEventListener("click", (event) => {
+      event.preventDefault();
+      const sesion = sessionStorage.getItem("usuario");
+      if (!sesion) {
+        solicitarAccesoConMensaje("Debes iniciar sesión con tu cuenta para adquirir entradas anticipadas.");
+      } else {
+        window.location.href = "html/entradas.html";
       }
     });
   });

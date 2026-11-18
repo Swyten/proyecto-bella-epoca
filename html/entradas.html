@@ -1,0 +1,214 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Entradas Anticipadas — Bella Época</title>
+    <meta name="description" content="Compra tus entradas anticipadas para viernes y sábados en Discoteca Bella Época con código QR al instante." />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&amp;family=Instrument+Serif&amp;display=swap" rel="stylesheet" />
+    <link rel="icon" type="image/png" href="../img/favicon.png" />
+    <link rel="stylesheet" href="../css/styles.css" />
+    <!-- Librería ligera para generar el código QR de la entrada en el cliente -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js" defer></script>
+    <script src="../js/entradas.js" defer></script>
+  </head>
+  <body>
+    <!-- Enlace de accesibilidad para saltar directamente al contenido principal -->
+    <a class="skip-link" href="#contenido">Saltar al contenido</a>
+
+    <header class="site-header">
+      <div class="container site-header__inner">
+        <a class="brand" href="../index.html" aria-label="Bella Época, inicio">
+          <span class="brand__monogram">BÉ</span><span class="brand__name">Bella Época</span>
+        </a>
+        <button class="menu-toggle" id="menu-toggle" type="button" aria-label="Abrir menú" aria-expanded="false" aria-controls="site-nav">
+          <span class="menu-toggle__line"></span>
+          <span class="menu-toggle__line"></span>
+          <span class="menu-toggle__line"></span>
+        </button>
+        <nav class="site-nav" id="site-nav" aria-label="Principal">
+          <a href="../index.html#inicio">Inicio</a>
+          <a href="eventos.html">Eventos</a>
+          <a href="reserva.html">Reservados</a>
+          <a href="entradas.html" aria-current="page">Entradas anticipadas</a>
+          <a href="galeria.html">Galería</a>
+          <a href="../index.html#contacto">Contacto</a>
+          <button class="btn btn--outline btn--small" id="btn-open-login">Iniciar Sesión</button>
+
+          <div id="user-profile-wrapper" style="position: relative; display: inline-block;" hidden>
+            <button class="btn btn--outline btn--small" id="btn-user-profile" type="button" aria-expanded="false">
+              <span id="user-name-label">Usuario</span>
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>
+            </button>
+            <div id="user-dropdown-menu" class="ticket-option" hidden style="position: absolute; right: 0; top: calc(100% + var(--space-2)); z-index: 1000; min-width: 180px;">
+              <p id="user-email-info" class="eyebrow" style="margin-bottom: var(--space-3); word-break: break-all;"></p>
+              <button type="button" id="btn-logout" class="btn btn--ghost btn--small" style="width: 100%;">Cerrar Sesión</button>
+            </div>
+          </div>
+        </nav>
+      </div>
+    </header>
+
+    <main id="contenido">
+      <section class="section" aria-labelledby="entradas-title">
+        <div class="container wizard">
+          <!-- Cabecera de sección con contexto claro -->
+          <div class="section__intro">
+            <p class="eyebrow">Acceso Anticipado · Viernes y Sábados</p>
+            <h1 id="entradas-title">Entradas Anticipadas</h1>
+            <p class="body-copy">Selecciona la noche de viernes o sábado, completa tus datos nominativos y realiza el pago con tarjeta Visa. Recibirás tu entrada con código QR al instante y en el correo asociado a tu cuenta.</p>
+          </div>
+
+          <!-- PASO 1: FORMULARIO DE DATOS Y PAGO VISA -->
+          <div id="ticket-purchase-card" class="wizard-panel">
+            <form id="advance-ticket-form" class="form" novalidate>
+              <!-- Bloque 1: Fecha (solo viernes y sábados) y teléfono -->
+              <div class="form-grid">
+                <div class="form-field">
+                  <label class="form-label" for="entrada-fecha">Fecha de acceso (Viernes o Sábado)</label>
+                  <input class="form-input" type="date" id="entrada-fecha" aria-describedby="fecha-hint fecha-error" required />
+                  <p class="form-hint" id="fecha-hint">Solo disponibles noches de viernes y sábado.</p>
+                  <p class="form-error" id="fecha-error" role="alert" hidden></p>
+                </div>
+
+                <div class="form-field">
+                  <label class="form-label" for="entrada-telefono">Teléfono de contacto</label>
+                  <input class="form-input" type="tel" id="entrada-telefono" autocomplete="tel" placeholder="600 123 456" aria-describedby="telefono-hint telefono-error" required />
+                  <p class="form-hint" id="telefono-hint">Necesario para notificaciones sobre el evento.</p>
+                  <p class="form-error" id="telefono-error" role="alert" hidden></p>
+                </div>
+              </div>
+
+              <!-- Bloque 2: Nombre y apellidos del titular de la entrada -->
+              <div class="form-grid">
+                <div class="form-field">
+                  <label class="form-label" for="entrada-nombre">Nombre</label>
+                  <input class="form-input" type="text" id="entrada-nombre" autocomplete="given-name" placeholder="Ej. Laura" aria-describedby="nombre-error" required />
+                  <p class="form-error" id="nombre-error" role="alert" hidden></p>
+                </div>
+
+                <div class="form-field">
+                  <label class="form-label" for="entrada-apellidos">Apellidos</label>
+                  <input class="form-input" type="text" id="entrada-apellidos" autocomplete="family-name" placeholder="Ej. Martínez García" aria-describedby="apellidos-error" required />
+                  <p class="form-error" id="apellidos-error" role="alert" hidden></p>
+                </div>
+              </div>
+
+              <!-- Resumen de entrada y correo de envío tomado de la sesión -->
+              <div class="ticket-option" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: var(--space-4);">
+                <div>
+                  <span class="eyebrow">Entrada Anticipada Nominativa</span>
+                  <p class="ticket-option__perks" style="margin-top: var(--space-1);">
+                    Acceso a sala principal + 1 consumición · Envío automático a <strong id="session-email-display" style="color: var(--primary);"></strong>
+                  </p>
+                </div>
+                <span class="ticket-option__price">15,00 €</span>
+              </div>
+
+              <hr class="divider" />
+
+              <!-- Bloque 3: Método de pago exclusivo con Tarjeta Visa -->
+              <fieldset class="form" aria-labelledby="legend-visa">
+                <legend id="legend-visa" class="eyebrow" style="margin-bottom: var(--space-3);">Método de pago · Tarjeta Visa</legend>
+
+                <div class="alert alert--info" role="note" style="justify-content: space-between; align-items: center;">
+                  <span>Pago seguro aceptado únicamente mediante <strong>Tarjeta Visa</strong> (numeración iniciada en 4).</span>
+                  <span aria-label="Visa" style="background: var(--background); color: var(--primary); border: 1px solid var(--primary); font-weight: 700; padding: var(--space-1) var(--space-3); border-radius: var(--radius); letter-spacing: 1px;">VISA</span>
+                </div>
+
+                <div class="form-field">
+                  <label class="form-label" for="visa-titular">Titular de la tarjeta Visa</label>
+                  <input class="form-input" type="text" id="visa-titular" autocomplete="cc-name" placeholder="NOMBRE Y APELLIDOS EN LA TARJETA" aria-describedby="visa-titular-error" required />
+                  <p class="form-error" id="visa-titular-error" role="alert" hidden></p>
+                </div>
+
+                <div class="form-field">
+                  <label class="form-label" for="visa-numero">Número de tarjeta Visa</label>
+                  <input class="form-input" type="text" id="visa-numero" inputmode="numeric" autocomplete="cc-number" maxlength="19" placeholder="4532 0000 0000 0000" aria-describedby="visa-numero-error" required />
+                  <p class="form-error" id="visa-numero-error" role="alert" hidden></p>
+                </div>
+
+                <div class="form-grid">
+                  <div class="form-field">
+                    <label class="form-label" for="visa-caducidad">Fecha de caducidad (MM/AA)</label>
+                    <input class="form-input" type="text" id="visa-caducidad" inputmode="numeric" autocomplete="cc-exp" maxlength="5" placeholder="08/28" aria-describedby="visa-caducidad-error" required />
+                    <p class="form-error" id="visa-caducidad-error" role="alert" hidden></p>
+                  </div>
+
+                  <div class="form-field">
+                    <label class="form-label" for="visa-cvv">Código de seguridad (CVV)</label>
+                    <input class="form-input" type="password" id="visa-cvv" inputmode="numeric" autocomplete="cc-csc" maxlength="3" placeholder="123" aria-describedby="visa-cvv-error" required />
+                    <p class="form-error" id="visa-cvv-error" role="alert" hidden></p>
+                  </div>
+                </div>
+              </fieldset>
+
+              <!-- Error general accesible -->
+              <div id="form-general-error" class="alert alert--error" role="alert" hidden>
+                <span id="form-general-error-text"></span>
+              </div>
+
+              <div class="wizard-actions">
+                <button type="submit" id="btn-pagar-entrada" class="btn btn--primary" style="width: 100%;">
+                  Pagar 15,00 € y generar entrada QR
+                </button>
+              </div>
+            </form>
+          </div>
+
+          <!-- PASO 2: TICKET GENERADO CON CÓDIGO QR Y DATOS NOMINATIVOS -->
+          <div id="generated-ticket-section" class="wizard-panel" hidden aria-live="polite">
+            <div class="alert alert--success" role="status">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="m5 12 4 4L19 6" /></svg>
+              <span><strong>¡Pago realizado con éxito!</strong> Hemos enviado este mismo ticket con tu código QR al correo <strong id="ticket-sent-email"></strong>.</span>
+            </div>
+
+            <article id="printable-ticket" aria-labelledby="ticket-heading" style="background: var(--background); border: 1px dashed var(--primary); border-radius: var(--radius); padding: var(--space-6); display: grid; gap: var(--space-5);">
+              <div style="display: flex; justify-content: space-between; align-items: flex-start; border-bottom: 1px solid var(--border); padding-bottom: var(--space-4); flex-wrap: wrap; gap: var(--space-3);">
+                <div>
+                  <p class="eyebrow" style="margin-bottom: var(--space-1);">Bella Época · Entrada Anticipada</p>
+                  <h2 id="ticket-heading">Pase Nominativo Oficial</h2>
+                </div>
+                <span class="status status--available" id="ticket-code-badge">REF: #BE-000000</span>
+              </div>
+
+              <div style="display: flex; gap: var(--space-6); align-items: center; flex-wrap: wrap;">
+                <!-- Contenedor con fondo blanco puro para garantizar contraste máximo de lectura del QR -->
+                <div style="background: var(--white); padding: var(--space-3); border-radius: var(--radius); flex-shrink: 0;">
+                  <div id="ticket-qrcode" role="img" aria-label="Código QR personal de acceso a Bella Época"></div>
+                </div>
+
+                <dl class="contact-details" style="flex: 1; min-width: 240px;">
+                  <div><dt>Asistente</dt><dd id="ticket-holder-name">—</dd></div>
+                  <div><dt>Fecha de acceso</dt><dd id="ticket-event-date">—</dd></div>
+                  <div><dt>Correo de sesión</dt><dd id="ticket-holder-email">—</dd></div>
+                  <div><dt>Teléfono</dt><dd id="ticket-holder-phone">—</dd></div>
+                  <div><dt>Método de pago</dt><dd id="ticket-payment-method">Tarjeta Visa •••• —</dd></div>
+                </dl>
+              </div>
+
+              <p class="form-hint" style="border-top: 1px solid var(--border); padding-top: var(--space-3);">
+                Presenta este código QR junto con tu DNI, pasaporte o carné físico original en Calle Vitoria, 25 (Logroño). Acceso exclusivo a mayores de 18 años.
+              </p>
+            </article>
+
+            <div class="btn-group">
+              <button type="button" id="btn-print-ticket" class="btn btn--outline">Imprimir / Guardar PDF</button>
+              <button type="button" id="btn-buy-another" class="btn btn--primary">Comprar otra entrada</button>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer class="site-footer">
+      <div class="container">
+        <div class="site-footer__bottom">
+          <span>© 2026 Bella Época</span><span>Calle Vitoria, 25 · 26005 Logroño, La Rioja</span>
+        </div>
+      </div>
+    </footer>
+  </body>
+</html>
