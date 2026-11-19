@@ -582,6 +582,60 @@
   });
 
   // =========================================================================
+  // 5. MENÚ RESPONSIVE (BOTÓN HAMBURGUESA MÓVIL)
+  // =========================================================================
+  const menuToggle = document.getElementById("menu-toggle");
+  const siteHeader = document.querySelector(".site-header");
+  const siteNav = document.getElementById("site-nav");
+
+  /**
+   * Abre o cierra el menú de navegación móvil sincronizando `aria-expanded`
+   * y la clase `.is-open` en la cabecera.
+   * @param {boolean} [forzarCerrar=false] - Si es true, contrae el menú siempre.
+   */
+  function alternarMenuMovil(forzarCerrar = false) {
+    if (!menuToggle || !siteHeader) return;
+    const estaAbierto = menuToggle.getAttribute("aria-expanded") === "true";
+    const nuevoEstado = forzarCerrar ? false : !estaAbierto;
+
+    menuToggle.setAttribute("aria-expanded", String(nuevoEstado));
+    menuToggle.setAttribute("aria-label", nuevoEstado ? "Cerrar menú" : "Abrir menú");
+    siteHeader.classList.toggle("is-open", nuevoEstado);
+  }
+
+  menuToggle?.addEventListener("click", (event) => {
+    event.stopPropagation();
+    alternarMenuMovil();
+  });
+
+  // Cierra el menú al pulsar cualquiera de los enlaces de navegación
+  siteNav?.addEventListener("click", (event) => {
+    if (event.target instanceof Element && event.target.closest("a")) {
+      alternarMenuMovil(true);
+    }
+  });
+
+  // Cierra el menú con la tecla Escape y devuelve el foco al botón hamburguesa
+  document.addEventListener("keydown", (event) => {
+    if (event.key === "Escape" && menuToggle?.getAttribute("aria-expanded") === "true") {
+      alternarMenuMovil(true);
+      menuToggle.focus();
+    }
+  });
+
+  // Cierra el menú al hacer clic fuera de la cabecera
+  document.addEventListener("click", (event) => {
+    if (event.target instanceof Element && !event.target.closest(".site-header")) {
+      alternarMenuMovil(true);
+    }
+  });
+
+  // Cierra automáticamente el menú móvil si se amplía la ventana a escritorio
+  window.matchMedia("(min-width: 769px)").addEventListener("change", (e) => {
+    if (e.matches) alternarMenuMovil(true);
+  });
+
+  // =========================================================================
   // 6. VISOR MODAL DE GALERÍA DE INICIO Y GUARDIAS DE SESIÓN
   // =========================================================================
   const gallery = document.getElementById("gallery-dialog");
